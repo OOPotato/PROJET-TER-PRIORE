@@ -10,3 +10,7 @@ Cahier des charges : https://docs.google.com/document/d/16M-d0SX8qZeBE63e6FB_o1x
 Cahier de recettes : https://docs.google.com/document/d/1Vzn0yHzCRIk-g6F-JbfOYB-glcKxLlIMIroGd9EQ4Yc/edit?usp=sharing
 
 Plan de développement : https://docs.google.com/document/d/1-K7yDfbcfTGoldw72sg2qtRgm-S_dKLKNTtoYcc1asY/edit?usp=sharing
+
+Slides utilisées : https://docs.google.com/presentation/d/1wMYEGglEiBE325bCPTmwDy3XICR-8ZH5jYUzuiaG3LU/edit?usp=sharing
+
+PDF indiqué dans les références : Voir Main branch
