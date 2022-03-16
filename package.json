@@ -2,12 +2,12 @@
   "name": "basic-linechart",
   "version": "0.9.5",
   "description": "This package contains, a line-chart component and some data's examples to try it.",
-  "author": "Cédric PINARD & Benjamin MITTON & Alexandre DEMEURE",
+  "author": "Tom PRIORE & Cédric PINARD & Benjamin MITTON & Alexandre DEMEURE",
   "repository": {
     "type": "git",
-    "url": "https://github.com/PROJET-TER-MITTON-PINARD/lib-basic-linechart.git"
+    "url": "https://github.com/OOPotato/PROJET-TER-PRIORE.git"
   },
-  "homepage": "https://github.com/PROJET-TER-MITTON-PINARD/lib-basic-linechart",
+  "homepage": "https://github.com/OOPotato/PROJET-TER-PRIORE",
   "keywords": [
     "angular",
     "typescript",
