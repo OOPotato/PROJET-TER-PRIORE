@@ -7,6 +7,7 @@
   </head>
   <body>
     <lib-basic-linechart
+      [knobCurrentTime] = true
       [data]=data2
       [range]=range
       (rangeChange)="updateRange($event)"
@@ -23,6 +24,7 @@
     ></lib-basic-linechart>
 
     <lib-basic-linechart
+      [scrollBar]=true
       [data]=dataset
       [range]=range
       (rangeChange)="updateRange($event)"

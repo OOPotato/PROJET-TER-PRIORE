@@ -16,6 +16,7 @@ import {Selection} from 'd3-selection';
 import * as d3 from 'd3';
 import {interpolateArray} from "d3";
 
+
 /**
  * Data's format for the component
  */
@@ -24,7 +25,6 @@ export interface Data {
    * Data's name
    */
   label: string;
-
   /**
    * Data's values [timestamp,value][]
    */
@@ -43,6 +43,7 @@ export interface Data {
    */
   interpolation: "linear" | "step";
 }
+
 
 export interface CONFIG {
   width: number;
@@ -78,8 +79,9 @@ interface points {
     <div #element>
       <!--    <h2>{{ title }}</h2> TODO SUPP -->
       <svg #root [attr.width]="width" [attr.height]="height"></svg>
-      <div #zone><div #scroll></div></div>
     </div>
+    <div #zone><div #scroll></div></div>
+
   `,
   styles: [
   ],
@@ -124,6 +126,18 @@ export class BasicLinechartComponent implements OnInit {
    * Default value : []
    */
   @Input() data: Data[] = [];
+
+
+  /**
+   * Show the scrollBar or not
+   */
+  @Input() scrollBar: boolean = false;
+
+
+  /**
+   * Show the scrollBar or not
+   */
+  @Input() knobCurrentTime: boolean = false;
 
   /**
    * ElementRef of DOM Element root
@@ -334,7 +348,7 @@ export class BasicLinechartComponent implements OnInit {
     this.drawLineAndPath();
     this.drawLineCurrentTime();
     this.buildLabels();
-    //this.drawScrollbar();
+    this.drawScrollbar();
   }
 
   /**
@@ -427,51 +441,56 @@ export class BasicLinechartComponent implements OnInit {
 
   private computePolyCoord(element: Data): polygonDef[] {
 
-
     let allPolygonsPath: polygonDef[]= [];
     let polygonPath: polygonDef;
     let polyId: number = 0;
+    let slopeMargin = 5;
 
     let i:   number = 0;
     while(i < element.values.length-1) {
-      if(element.values[i][1] == -1) {
+      if(element.style == "bool"){
+        if((element.values[i][1] == -1) && (element.values[i][1] != element.values[i+1][1])){
 
-        polygonPath = {
-          "name": "polygon "+polyId,
-          "points": [
-            {"x" : this.scaleX(element.values[i][0]), "y" : 0},
-            {"x" : this.scaleX(element.values[i][0]), "y" : this.scaleY(element.values[i][1])},
-            {"x" : this.scaleX(element.values[i+1][0]), "y" : this.scaleY(element.values[i][1])},
-            {"x" : this.scaleX(element.values[i+1][0]), "y" : 0}
+          polygonPath = {
+            "name": "polygon "+polyId,
+            "points": [
+              {"x" : this.scaleX(element.values[i][0]), "y" : this.svgHeight/2},
+              {"x" : this.scaleX(element.values[i][0]) + slopeMargin, "y" : 0},
+              {"x" : this.scaleX(element.values[i+1][0]) - slopeMargin, "y" : 0},
+              {"x" : this.scaleX(element.values[i+1][0]), "y" : this.svgHeight/2},
+              {"x" : this.scaleX(element.values[i+1][0]) - slopeMargin, "y" : this.scaleY(element.values[i][1])},
+              {"x" : this.scaleX(element.values[i][0]) + slopeMargin, "y" : this.scaleY(element.values[i][1])},
+            ]
+
+
+          }
+
+          allPolygonsPath[polyId] = polygonPath;
+          polyId++;
+
+        }
+
+      } else if (element.style == "enum"){
+        if(element.values[i][1] != -2) {
+
+          polygonPath = {
+            "name": "polygon "+polyId,
+            "points": [
+              {"x" : this.scaleX(element.values[i][0]), "y" : 0},
+              {"x" : this.scaleX(element.values[i+1][0]), "y" : 0},
+              {"x" : this.scaleX(element.values[i+1][0]), "y" : this.svgHeight},
+              {"x" : this.scaleX(element.values[i][0]), "y" : this.svgHeight},
             ]
           }
 
-        allPolygonsPath[polyId] = polygonPath;
+          allPolygonsPath[polyId] = polygonPath;
+          polyId++;
 
-        // console.log("Result AllPolygonPath first x " + polyId + " - 0 : " + allPolygonsPath[polyId].points[0].x);
-        // console.log("Result AllPolygonPath first x " + polyId + " - 1: " + allPolygonsPath[polyId].points[1].x);
-        // console.log("Result AllPolygonPath first x " + polyId + " - 2: " + allPolygonsPath[polyId].points[2].x);
-        // console.log("Result AllPolygonPath first x " + polyId + " - 3: " + allPolygonsPath[polyId].points[3].x);
-
-        polyId++;
-
-        // console.log(allPolygonsPath[polyId]);
-
-        // console.log("Here 0 - " + element.label + " - i=" + i + " | " + this.scaleX(element.values[i][0]) + " | nScale - " + element.values[i][0]);
-        // console.log("Here 1 - " + element.label + " - i=" + i + " | " + this.scaleX(element.values[i][1]) + " | nScale - " + element.values[i][1]);
-        //
-        // console.log("Rect : " +
-        //   this.scaleX(element.values[i][0]) + ',' + 0 + " " +
-        //   this.scaleX(element.values[i][0]) + ',' + this.scaleY(element.values[i][1]) + " " +
-        //   this.scaleX(element.values[i + 1][0]) + ',' + this.scaleY(element.values[i][1]) + " " +
-        //   this.scaleX(element.values[i + 1][0]) + ',' + 0 + " ");
-
+        }
       }
       i++;
-
     }
 
-    // console.log("Result AllPolygonPath : " + allPolygonsPath);
     return allPolygonsPath;
 
   }
@@ -569,21 +588,48 @@ export class BasicLinechartComponent implements OnInit {
     this.scaleY = d3.scaleLinear();
     this.scaleY.range([this.svgHeight, 0]);
     this.scaleY.domain(this.controlDomain());
+
+
     // Configure the X Axis
     this.svg.append('g')
       .attr('transform', 'translate(0,' + this.svgHeight + ')')
       .attr('class', 'xAxis')
       .call(d3.axisBottom(this.scaleX));
+
+
     // Configure the Y Axis
-    if(this.discreteValue(this.data)){
-      this.svg.append('g')
-        .attr('class', 'yAxis')
-        .call(d3.axisLeft(this.scaleY).ticks(this.scale(this.data,"yMax")));
-    }else{
-      this.svg.append('g')
-        .attr('class', 'yAxis')
-        .call(d3.axisLeft(this.scaleY));
-    }
+    this.data.forEach((element,index) => {
+      if(element.style == "bool" || element.style == "enum"){
+
+        if(this.discreteValue(this.data)){
+          this.svg.append('g')
+            .attr('class', 'yAxis')
+            .call(d3.axisLeft(this.scaleY).ticks(this.scale(this.data,"yMax")));
+
+        }else {
+          this.svg.append('g')
+            .attr('class', 'yAxis')
+            .call(d3.axisLeft(this.scaleY));
+        }
+
+      } else {
+
+        if(this.discreteValue(this.data)){
+          this.svg.append('g')
+            .attr('class', 'yAxis')
+            .call(d3.axisLeft(this.scaleY).ticks(this.scale(this.data,"yMax")));
+
+        }else{
+          this.svg.append('g')
+            .attr('class', 'yAxis')
+            .call(d3.axisLeft(this.scaleY));
+
+        }
+
+      }
+
+    });
+
   }
 
   /**
@@ -615,9 +661,6 @@ export class BasicLinechartComponent implements OnInit {
             .style('stroke-width', '2px');
         }
 
-        console.log("Result check 2 - ");
-        console.log(this.computePolyCoord(element));
-
         if(element.style=="bool" || element.style=="enum"){
 
           this.svg.selectAll('.poly'+index).data([this.dataZoomed[index].values])
@@ -625,13 +668,7 @@ export class BasicLinechartComponent implements OnInit {
             .enter().append("polygon")
             .attr('class', 'poly'+index)
             .attr("points", (d: polygonDef) => {
-              console.log("Name is : " + d.name);
-              console.log("Name is : " + d.points[0].x + " " + d.points[0].y);
-              console.log("Result of build is : " + d.points.map((d: points) => {
-                return [d.x,d.y].join(",");
-              }).join(" "));
-
-              return d.points.map((d: points) => {
+               return d.points.map((d: points) => {
                 return [d.x,d.y].join(",");
               }).join(" ");
             })
@@ -647,6 +684,10 @@ export class BasicLinechartComponent implements OnInit {
     )
   }
 
+
+  /**
+   * Build and draw labels
+   */
   private buildLabels():void {
 
     this.enumLabel = this.svg.selectAll(".label").data(this.dataZoomed);
@@ -660,23 +701,33 @@ export class BasicLinechartComponent implements OnInit {
     this.dataZoomed.forEach((element) => {
       if (element.style == "enum") {
         let i: number = 0;
-        for (i; i < element.values.length; i++) {
+        let avgLetterLength: number = 10.5; // For 15px of font-size
 
-          gs.append("text")
-            .attr("class", "label")
-            .text(this.intToEnum(element.values[i][1]))
-            .attr("transform", "translate(" + this.scaleX(element.values[i][0]) + "," + this.svgHeight / 2 + ")");
+        for (i; i < element.values.length-1; i++) {
 
-          // console.log("Here " + element.label + " - " + i + " | " + this.scaleX(element.values[i][0]));
+          if(this.scaleX(element.values[i+1][0]) - this.scaleX(element.values[i][0]) >= avgLetterLength*this.intToEnum(element.values[i][1]).length){
+
+            gs.append("text")
+              .attr("class", "label")
+              .text(this.intToEnum(element.values[i][1]))
+              .style("font-size", "15px")
+              .attr("transform", "translate(" + this.scaleX(element.values[i][0]) + "," + this.svgHeight / 2 + ")");
+
+            // console.log("Here " + element.label + " - " + i + " | " + this.scaleX(element.values[i][0]));
+
+          }
         }
       }
     });
   }
 
+  /**
+   * Update the Labels
+   */
+
   private updateLabels(): void {
     d3.selectAll(".label").remove();
     this.buildLabels();
-
   }
 
 
@@ -684,11 +735,11 @@ export class BasicLinechartComponent implements OnInit {
    * Translate numerical value to enumeration
    */
 
-  private intToEnum(value: number): string{
+  private  intToEnum(value: number): string{
     if(value==1) return "SUNNY";
     else if (value==2) return "RAINY";
     else if (value==3) return "CLOUDY";
-    else return "UNKONWN";
+    else return "UNKNOWN";
 
   }
 
@@ -703,24 +754,40 @@ export class BasicLinechartComponent implements OnInit {
       }
       let x:number=0;
       this.svg.append('path')
-        .datum([[this.currentTime,this.controlDomain()[0]],[this.currentTime,this.svgHeight]])
+        .datum([[this.currentTime,this.height],[this.currentTime,this.scaleY(this.svgHeight)]])
+        // .datum([[this.currentTime,this.height],[this.currentTime,this.scaleY(this.svgHeight)]])
         .attr('class', 'currentTimeLine')
         .attr('d', d3.line()
           .x((d: number[]) => x=this.scaleX(d[0]))
-          .y((d: number[]) => this.scaleY(d[1])))
+          // .y((d: number[]) => this.scaleY(d[1])))
+        .y((d: number[]) => {
+            // console.log("START --------------------------------");
+            // console.log("this.controlDomain()[0] - " +this.controlDomain()[0]);
+            // console.log("this.height] - " +this.height);
+            // console.log("d[0] = " + d[0] + " | d[1] = " + d[1]);
+            // console.log("this.scaleX - d[0] = " + this.scaleX(d[0]) + " | this.scaleY - d[1] = " + this.scaleY(d[1]));
+            // console.log("--------------------------------------\n");
+          return d[1];
+          }))
+        // .x((d: number[]) => 10)
+          // .y((d: number[]) => 50))
         .style('fill', 'none')
         .style('stroke', 'red')
         .style('stroke-width', '3px');
-      this.svg.append('circle')
-        .attr('class', 'currentTimeSelector')
-        .attr('cx', x)
-        .attr('cy', -13)
-        .attr('r', 7)
-        .attr('fill', 'red')
-        .on("mousedown", () => {
-          this.currentTimeSelected=true;
-          this.hideInfo();
-        })
+
+      //Selector Circle
+      if(this.knobCurrentTime) {
+        this.svg.append('circle')
+          .attr('class', 'currentTimeSelector')
+          .attr('cx', x)
+          .attr('cy', -13)
+          .attr('r', 7)
+          .attr('fill', 'red')
+          .on("mousedown", () => {
+            this.currentTimeSelected=true;
+            this.hideInfo();
+          })
+      }
     }
   }
 
@@ -728,20 +795,22 @@ export class BasicLinechartComponent implements OnInit {
    * Draw the scrollbar and event listener on it
    */
   private drawScrollbar(): void{
-    this.zoneScrollbar.nativeElement.style.width = this.svgWidth+"px";
-    this.zoneScrollbar.nativeElement.style.marginLeft = this.margin.left+ "px";
-    this.zoneScrollbar.nativeElement.style.height = "20px";
-    this.zoneScrollbar.nativeElement.style.backgroundColor = "lightgrey";
-    this.zoneScrollbar.nativeElement.style.borderRadius = "10px";
-    this.scrollbar.nativeElement.style.width = this.svgWidth+"px";
-    this.scrollbar.nativeElement.style.height = "20px";
-    this.scrollbar.nativeElement.style.backgroundColor = "grey";
-    this.scrollbar.nativeElement.style.borderRadius = "10px";
-    this.compo.nativeElement.style.width = this.svgWidth+this.margin.left+"px";
-    this.compo.nativeElement.style.padding = "10px 10px 10px 10px";
-    this.renderer.listen(this.scrollbar.nativeElement, 'mousedown', (event:MouseEvent) => this.activeScrollbar(event));
-    this.renderer.listen(window, 'mouseup', () => this.desactiveScrollbar());
-    this.renderer.listen(window,'mousemove', (event:MouseEvent) => this.updateRange(event));
+    if(this.scrollBar){
+      this.zoneScrollbar.nativeElement.style.width = this.svgWidth+"px";
+      this.zoneScrollbar.nativeElement.style.marginLeft = this.margin.left+ "px";
+      this.zoneScrollbar.nativeElement.style.height = "15px";
+      this.zoneScrollbar.nativeElement.style.backgroundColor = "lightgrey";
+      this.zoneScrollbar.nativeElement.style.borderRadius = "10px";
+      this.scrollbar.nativeElement.style.width = this.svgWidth+"px";
+      this.scrollbar.nativeElement.style.height = "15px"
+      this.scrollbar.nativeElement.style.backgroundColor = "grey";
+      this.scrollbar.nativeElement.style.borderRadius = "10px";
+      this.compo.nativeElement.style.width = this.svgWidth+this.margin.left+"px";
+      // this.compo.nativeElement.style.padding = "10px 10px 10px 10px"; // TODO PADDING REMOVE BECAUSE CHART NOT IN LINE WITH OTHERS
+      this.renderer.listen(this.scrollbar.nativeElement, 'mousedown', (event:MouseEvent) => this.activeScrollbar(event));
+      this.renderer.listen(window, 'mouseup', () => this.desactiveScrollbar());
+      this.renderer.listen(window,'mousemove', (event:MouseEvent) => this.updateRange(event));
+    }
   }
 
   /**
@@ -802,16 +871,23 @@ export class BasicLinechartComponent implements OnInit {
     this.updateLine();
     this.updateCurrentTime();
     this.updateScrollbar(min,max);
+
   }
 
   /**
    * Update the display of lines
    */
   private updateLine(): void{
+
     let lineUpdate;
     let polyUpdate;
     let areaUpdate;
     this.dataZoomed.forEach((element,index) => {
+
+      this.svg.selectAll('.area'+index).remove();
+      this.svg.selectAll('.line'+index).remove();
+      this.svg.selectAll('.poly'+index).remove();
+
       if(element.style=="area" || element.style=="both"){
         areaUpdate= this.svg.selectAll('.area'+index).data([this.dataZoomed[index].values]);
         areaUpdate
@@ -841,7 +917,7 @@ export class BasicLinechartComponent implements OnInit {
 
       if(element.style=="bool" || element.style=="enum"){
 
-        console.log("HERE ....");
+        // console.log("HERE ....");
         polyUpdate= this.svg.selectAll('.poly'+index).data([this.dataZoomed[index].values]);
         polyUpdate
           .data(this.computePolyCoord(element))
@@ -850,12 +926,11 @@ export class BasicLinechartComponent implements OnInit {
           .attr('class', 'poly'+index)
           .merge(polyUpdate)
           .attr("points", (d: polygonDef) => {
-            console.log("Name is : " + d.name);
-            console.log("Name is : " + d.points[0].x + " " + d.points[0].y);
-            console.log("Result of build is : " + d.points.map((d: points) => {
-              return [d.x,d.y].join(",");
-            }).join(" "));
-
+            // console.log("Name is : " + d.name);
+            // console.log("Name is : " + d.points[0].x + " " + d.points[0].y);
+            // console.log("Result of build is : " + d.points.map((d: points) => {
+            //   return [d.x,d.y].join(",");
+            // }).join(" "));
             return d.points.map((d: points) => {
               return [d.x,d.y].join(",");
             }).join(" ");
@@ -874,7 +949,7 @@ export class BasicLinechartComponent implements OnInit {
    * Update the position of the current time line
    */
   private updateCurrentTime(): void{
-    let lineUpdate = this.svg.selectAll('.currentTimeLine').datum([[this.currentTime,this.controlDomain()[0]],[this.currentTime,this.svgHeight]]);
+    let lineUpdate = this.svg.selectAll('.currentTimeLine').datum([[this.currentTime,this.height],[this.currentTime,this.scaleY(this.svgHeight)]])
     let x:number=0;
     lineUpdate.enter()
       .append("path")
@@ -882,7 +957,7 @@ export class BasicLinechartComponent implements OnInit {
       .merge(lineUpdate)
       .attr('d', d3.line()
         .x((d: number[]) => x=this.scaleX(d[0]))
-        .y((d: number[]) => this.scaleY(d[1])))
+        .y((d: number[]) => d[1]))
       .style('fill', 'none')
       .style('stroke', 'red')
       .style('stroke-width', '3px');

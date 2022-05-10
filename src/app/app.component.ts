@@ -35,7 +35,7 @@ export class AppComponent {
     this.data7 = data.dataExample7;
     this.data8 = data.dataExample8;
     this.data9 = data.dataExample9;
-    this.dataset = data.dataExample2;
+    this.dataset = data.dataExample4;
 
   }
   public updateRange(rangeChange: [number,number]){
