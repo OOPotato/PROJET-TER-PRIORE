@@ -1,5 +1,6 @@
-import { Injectable } from '@angular/core';
-import { Data } from './basic-linechart.component';
+import {Injectable} from '@angular/core';
+import {Data} from './basic-linechart.component';
+
 
 /**
  * DATA's format when we extract data from a string
@@ -46,6 +47,7 @@ export class DataService {
   "2016-07-28 18:15:24,459";"PC6";"OFF"
   "2016-07-29 09:06:24,459";"PC6";"ON"
   "2016-07-29 19:36:24,459";"PC6";"OFF"
+
   "2016-07-25 15:47:24,459";"PC5";"OFF"
   "2016-07-25 22:47:24,459";"PC5";"ON"
   "2016-07-25 22:55:24,459";"PC5";"OFF"
@@ -57,6 +59,7 @@ export class DataService {
   "2016-07-28 14:15:24,459";"PC5";"OFF"
   "2016-07-29 06:06:24,459";"PC5";"ON"
   "2016-07-29 19:36:24,459";"PC5";"OFF"
+
   "2016-07-25 15:47:19,423";"Temperature_Cuisine";"25.7"
   "2016-07-25 15:48:20,279";"Temperature_Cuisine";"26.740000000000002"
   "2016-07-25 15:50:00,776";"Temperature_Cuisine";"26.76"
@@ -68,6 +71,7 @@ export class DataService {
   "2016-07-25 16:34:50,177";"Temperature_Cuisine";"26.46"
   "2016-07-25 16:39:50,128";"Temperature_Cuisine";"26.5"
   "2016-07-25 16:44:50,065";"Temperature_Cuisine";"26.52"
+
   "2016-07-25 15:47:19,423";"Temperature_Salon";"26.34"
   "2016-07-25 15:48:05,264";"Temperature_Salon";"26.38"
   "2016-07-25 15:53:05,275";"Temperature_Salon";"26.36"
@@ -77,6 +81,20 @@ export class DataService {
   "2016-07-25 16:23:05,172";"Temperature_Salon";"26.22"
   "2016-07-25 16:28:05,244";"Temperature_Salon";"26.16"
   "2016-07-25 16:29:55,490";"Temperature_Salon";"26.14"
+
+  "2016-07-25 15:47:24,459";"Temperature_Chambre";"21.34"
+  "2016-07-25 22:47:24,459";"Temperature_Chambre";"21.38"
+  "2016-07-25 22:55:24,459";"Temperature_Chambre";"21.36"
+  "2016-07-26 07:29:24,459";"Temperature_Chambre";"21.34"
+  "2016-07-26 20:59:24,459";"Temperature_Chambre";"21.32"
+  "2016-07-27 06:21:24,459";"Temperature_Chambre";"21.28"
+  "2016-07-27 13:00:24,459";"Temperature_Chambre";"21.22"
+  "2016-07-28 06:32:24,459";"Temperature_Chambre";"21.05"
+  "2016-07-28 14:15:24,459";"Temperature_Chambre";"21.34"
+  "2016-07-29 06:06:24,459";"Temperature_Chambre";"21.56"
+  "2016-07-29 19:36:24,459";"Temperature_Chambre";"21.3"
+
+
   "2016-07-25 15:47:19,423";"PC3";"ON"
   "2016-07-25 15:48:20,279";"PC3";"OFF"
   "2016-07-25 15:50:00,776";"PC3";"ON"
@@ -88,6 +106,7 @@ export class DataService {
   "2016-07-25 16:34:50,177";"PC3";"ON"
   "2016-07-25 16:39:50,128";"PC3";"OFF"
   "2016-07-25 16:44:50,065";"PC3";"ON"
+
   "2016-07-25 15:47:19,423";"Enum_1";"SUNNY"
   "2016-07-25 15:48:20,279";"Enum_1";"CLOUDY"
   "2016-07-25 15:50:00,776";"Enum_1";"RAINY"
@@ -99,6 +118,7 @@ export class DataService {
   "2016-07-25 16:34:50,177";"Enum_1";"CLOUDY"
   "2016-07-25 16:39:50,128";"Enum_1";"RAINY"
   "2016-07-25 16:44:50,065";"Enum_1";"RAINY"
+
   "2016-07-25 15:47:24,459";"Enum_2";"CLOUDY"
   "2016-07-25 22:47:24,459";"Enum_2";"CLOUDY"
   "2016-07-25 22:55:24,459";"Enum_2";"CLOUDY"
@@ -112,6 +132,9 @@ export class DataService {
   "2016-07-29 19:36:24,459";"Enum_2";"SUNNY"
   `;
 
+  public dataExemples: Data[][] = [];
+
+  public nbOfData: number;
 
   /**
    * Dataset 1
@@ -161,10 +184,20 @@ export class DataService {
 
 
   /**
+   * Dataset 10
+   */
+  public dataExample10: Data[] = [];
+
+
+  /**
    * Constructor
    * Launch generateExample with parameters this.str to fill all Dataset
    */
   constructor() {
+    this.nbOfData = this.countNumberOfData(this.str);
+    for (let i = 0; i < this.nbOfData; i++) {
+      this.dataExemples[i] = [];
+    }
     this.generateExample(this.str);
   }
 
@@ -202,10 +235,10 @@ export class DataService {
     d2.forEach(element =>v2.push([element.timestamp,element.value]));
     let x:number = 0;
     v2.forEach(element=> {
-      element[1]=x;
-      x=this.getRandomInt(x);
-    }
-      );
+        element[1]=x;
+        x=this.getRandomInt(x);
+      }
+    );
     let da2: Data = {
       label: "PC4",
       values: v2,
@@ -223,6 +256,21 @@ export class DataService {
     this.dataExample7.push(this.generateData(str,"PC5", "pink", "bool", "step", this.parseBool));
     this.dataExample8.push(this.generateData(str,"Enum_1", "red", "enum", "step", this.parseEnum));
     this.dataExample9.push(this.generateData(str,"Enum_2", "#6a13ce", "enum", "step", this.parseEnum));
+    this.dataExample10.push(this.generateData(str,"Temperature_Chambre", "#ff5e21", "line", "linear", parseFloat));
+
+    this.dataExemples[0].push(da2);
+    this.dataExemples[1].push(this.generateData(str,"PC6","#048ba8","bool", "step",this.parseBool));
+    this.dataExemples[2].push(this.generateData(str,"PC6","#124568","area", "step",this.parseBool));
+    this.dataExemples[3].push(this.generateData(str,"Temperature_Salon", "purple", "line", "linear", parseFloat));
+    this.dataExemples[4].push(this.generateData(str,"Temperature_Cuisine", "gold", "line", "step", parseFloat));
+    this.dataExemples[5].push(this.generateData(str,"PC3","green","bool", "step",this.parseBool));
+    this.dataExemples[6].push(this.generateData(str,"PC5", "pink", "bool", "step", this.parseBool));
+    this.dataExemples[7].push(this.generateData(str,"Enum_1", "red", "enum", "step", this.parseEnum));
+    this.dataExemples.push([]);
+    this.dataExemples[8].push(this.generateData(str,"Enum_2", "#6a13ce", "enum", "step", this.parseEnum));
+    this.dataExemples.push([]);
+    this.dataExemples[9].push(this.generateData(str,"Temperature_Chambre", "#ff5e21", "line", "linear", parseFloat));
+
 
     // TODO IDEA BOOL IMPLEMENTATION //
     // STRING TEST  "2016-07-25 15:47:19,423";"Enum_1";"SUNNY"
@@ -295,10 +343,24 @@ export class DataService {
         sensorId: id
 
       }));
+
     return L;
 
   }
 
+  private countNumberOfData(str: string): number {
+
+    let test: string[][] = str.trim().split("\n").map(s => s.trim()).filter(s => s!=="")
+      .map( s => s.split(";").map( s => s.slice(1, -1) ) );
+
+    let test2: string[] = [];
+
+    test.forEach((element: string[]) => {
+      test2.push(element[1]);
+
+    });
+
+    return new Set(test2).size;
+  }
+
 }
-
-

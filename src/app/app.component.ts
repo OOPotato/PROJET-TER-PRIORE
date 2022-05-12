@@ -1,91 +1,142 @@
 import { Component } from '@angular/core';
-import {Data} from "../lib/basic-linechart.component";
+import {colorMap, Data} from "../lib/basic-linechart.component";
 import {DataService} from "../lib/basic-linechart.service";
 import { CONFIG } from "../lib/basic-linechart.component";
+import {installAllPackages} from "@angular/cli/utilities/install-package";
+import {line} from "d3";
+
+
+
+interface linechart {
+  data: Data[];
+  colorScheme: colorMap;
+  display: number,
+}
+
+const defaultColorScheme: colorMap = {
+  sunny : "#d77403",
+  rainy : "#0473a6",
+  cloudy : "#6d8d9d",
+  lineIndex: ["red"]
+}
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
+
 export class AppComponent {
   title = 'Test';
 
-  public data1:Data[]=[];
-  public data2:Data[]=[];
-  public data3:Data[]=[];
-  public data4:Data[]=[];
-  public data5:Data[]=[];
-  public data6:Data[]=[];
-  public data7:Data[]=[];
-  public data8:Data[]=[];
-  public data9:Data[]=[];
-  public dataset:Data[]=[];
+  public config: Partial<CONFIG>;
   public range: [number, number] = [0,0];
   public currentTime : number = 0;
-  public next=1;
+
+  public colorScheme1: colorMap;
+  public colorScheme2: colorMap;
+
+  public allDatasets: Data[][];
+
+  public linecharts: linechart[];
+
+  public BACK = -1;
+  public NEXT = 1;
 
   constructor(data : DataService) {
-    this.data1 = data.dataExample1;
-    this.data2 = data.dataExample2;
-    this.data3 = data.dataExample3;
-    this.data4 = data.dataExample4;
-    this.data5 = data.dataExample5;
-    this.data6 = data.dataExample6;
-    this.data7 = data.dataExample7;
-    this.data8 = data.dataExample8;
-    this.data9 = data.dataExample9;
-    this.dataset = data.dataExample4;
+    this.allDatasets = data.dataExemples;
 
-  }
-  public updateRange(rangeChange: [number,number]){
-    this.range=rangeChange;
-  }
+    this.colorScheme1 = {
+      sunny : "#d70303",
+      rainy : "#00abff",
+      cloudy : "#0d8a5a",
+      lineIndex: ["green"]
+    }
+    this.colorScheme2 = {
+      sunny : "#d74303",
+      rainy : "#0a4059",
+      cloudy : "#7c7a98",
+      lineIndex: ["blue"]
+    }
 
-  public updateCurrentTime(currentTimeChange: number ){
-    this.currentTime=currentTimeChange;
-  }
+    this.linecharts = [];
+    this.linecharts.push({
+      data: this.allDatasets[7],
+      colorScheme: defaultColorScheme,
+      display: 7
+    });
 
-  public change(){
-    this.next++;
-    // @ts-ignore
-    document.getElementById("datasetNumber").innerHTML = String(this.next);
-    switch (this.next){
-      case 1 :
-        this.dataset = this.data1;
-        break;
-      case 2 :
-        this.dataset = this.data2;
-        break;
-      case 3 :
-        this.dataset = this.data3;
-        break;
-      case 4 :
-        this.dataset = this.data4;
-        break;
-      case 5 :
-        this.dataset = this.data5;
-        break;
-      case 6 :
-        this.dataset = this.data6;
-        break;
-      case 7 :
-        this.dataset = this.data7;
-        break;
-      case 8 :
-        this.dataset = this.data8;
-        break;
-      case 9 :
-        this.dataset = this.data9;
-        // @ts-ignore
-        document.getElementById("datasetNumber").innerHTML = String(this.next);
-        this.next = 0;
-        break;
+    this.linecharts.push({
+      data: this.allDatasets[8],
+      colorScheme: this.colorScheme1,
+      display: 8
+    });
+
+    this.linecharts.push({
+      data: this.allDatasets[9],
+      colorScheme: this.colorScheme2,
+      display: 9
+    });
+
+
+    this.config = {
+      width: 900,
+      height: 80,
+      domainY: [0, 0],
+      speedZoom: 0.2,
+      range: [0,0],
+      currentTime: 0,
+      scrollBar: false,
+      knobCurrentTime: false,
     }
 
   }
 
-  public rangeFun(){
-
+  public updateRange(range: [number,number]){
+    this.config = {...this.config, range};
   }
+
+  public updateCurrentTime(currentTime: number ) {
+    this.config = {...this.config, currentTime};
+  }
+
+  public changeLinechart(linechart: number, value: number){
+
+    this.linecharts[linechart].display += value;
+
+    if(this.linecharts[linechart].display == this.allDatasets.length) this.linecharts[linechart].display = 0;
+    if(this.linecharts[linechart].display == -1) this.linecharts[linechart].display = this.allDatasets.length-1;
+
+    this.linecharts[linechart].data = this.allDatasets[this.linecharts[linechart].display];
+  }
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

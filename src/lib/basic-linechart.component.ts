@@ -21,26 +21,30 @@ import {interpolateArray} from "d3";
  * Data's format for the component
  */
 export interface Data {
-  /**
+  /*\
    * Data's name
-   */
+  \*/
   label: string;
-  /**
+
+  /*\
    * Data's values [timestamp,value][]
-   */
+  \*/
   values: [number,number][];
-  /**
+
+  /*\
    * Line or area color you can fill with name, hexacode or rgb code.
-   */
+  \*/
   color: string;
-  /**
+
+  /*\
    * Style of line
-   */
+  \*/
   style: "line" | "area" | "both" | "bool" | "enum";
-  /**
+
+  /*\
    * Interpolation of line
    * Recommanded : step for discrete values and linear for continuous values
-   */
+  \*/
   interpolation: "linear" | "step";
 }
 
@@ -52,6 +56,23 @@ export interface CONFIG {
   speedZoom: number;
   range: [number,number];
   currentTime: number;
+  scrollBar: boolean;
+  knobCurrentTime: boolean;
+  colorMap : colorMap;
+}
+
+export interface colorMap {
+  sunny: string;
+  rainy: string;
+  cloudy: string;
+  lineIndex: string[];
+}
+
+const defaultColorMap: colorMap = {
+  sunny : "#d77403",
+  rainy : "#0473a6",
+  cloudy : "#6d8d9d",
+  lineIndex: ["red"]
 }
 
 const defaultConfig: CONFIG = {
@@ -60,12 +81,17 @@ const defaultConfig: CONFIG = {
   domainY: [0, 0],
   speedZoom: 0.2,
   range: [0,0],
-  currentTime: 0,
+  currentTime: 1,
+  scrollBar: false,
+  knobCurrentTime: false,
+  colorMap: defaultColorMap,
+
 }
 
 interface polygonDef {
   "name": string;
   "points": points[];
+  "color": string;
 }
 
 interface points {
@@ -92,207 +118,196 @@ interface points {
 export class BasicLinechartComponent implements OnInit {
   private _config: CONFIG = defaultConfig;
   @Input()
-  get config(): CONFIG {return this._config;}
+  get config(): Partial<CONFIG> {return this._config;}
   set config(c: Partial<CONFIG>) {
     this._config = {...defaultConfig, ...c};
+
   }
 
-  @Input()
-  get width(): number {return this.config.width;}
+  get width(): number {return <number>this.config.width;}
   set width(value: number) { this.config.width = value; }
 
-  @Input()
-  get height(): number {return this.config.height;}
+  get height(): number {return <number>this.config.height;}
   set height(value: number) { this.config.height = value; }
 
-  @Input()
-  get domainY(): [number, number] {return this.config.domainY;}
+  get domainY(): [number, number] {return <[number, number]> this.config.domainY;}
   set domainY(value: [number, number]) { this.config.domainY = value;}
 
-  @Input()
-  get speedZoom(): number {return this.config.speedZoom;}
+  get speedZoom(): number {return <number>this.config.speedZoom;}
   set speedZoom(value: number) { this.config.speedZoom = value; }
 
-  @Input()
-  get range(): [number, number] {return this.config.range;}
-  set range(value: [number, number]) { this.config.range = value; }
+  get range(): [number, number] {return <[number, number]> this.config.range;}
+  set range(value: [number, number]) {  this.config.range = value;  }
 
-  @Input()
-  get currentTime(): number {return this.config.currentTime;}
+  get currentTime(): number {return <number>this.config.currentTime;}
   set currentTime(value: number) { this.config.currentTime = value; }
 
-  /**
+  get scrollBar(): boolean {return <boolean> this.config.scrollBar;}
+  set scrollBar(value: boolean) { this.config.scrollBar = value; }
+
+  get knobCurrentTime(): boolean {return <boolean> this.config.knobCurrentTime;}
+  set knobCurrentTime(value: boolean) { this.config.knobCurrentTime = value; }
+
+  /*\
    * Input data array that the component display
    * Default value : []
-   */
+  \*/
   @Input() data: Data[] = [];
 
-
-  /**
-   * Show the scrollBar or not
-   */
-  @Input() scrollBar: boolean = false;
-
-
-  /**
-   * Show the scrollBar or not
-   */
-  @Input() knobCurrentTime: boolean = false;
-
-  /**
+  /*\
    * ElementRef of DOM Element root
    * It's a svg with the linechart
-   */
+  \*/
   @ViewChild('root') timeline!: ElementRef;
 
-  /**
+  /*\
    * ElementRef of DOM Element scroll
    * It's a div that will be the scrollbar
-   */
+  \*/
   @ViewChild('scroll') scrollbar!: ElementRef;
 
-  /**
+  /*\
    * ElementRef of DOM Element zone
    * It's a div that will be the zone of scrollbar
-   */
+  \*/
   @ViewChild('zone') zoneScrollbar!: ElementRef;
 
-  /**
+  /*\
    * ElementRef of DOM Element element
    * It's a div that contains all the others Dom Element
-   */
+  \*/
   @ViewChild('element') compo!: ElementRef;
 
-  /**
+  /*\
    * Output rangeChange that emit range
-   */
+  \*/
   @Output() rangeChange = new EventEmitter<[number,number]>();
 
-  /**
+  /*\
    * Output currentTimeChange that emit currentTime
-   */
+  \*/
   @Output() currentTimeChange = new EventEmitter<number>();
 
 
-  /**
+  /*\
    * Title of the component
-   */
+  \*/
   public title:string = 'Timeline : ';
 
-  /**
+  /*\
    * svg that contain the linechart and the axis
-   */
+  \*/
   private svg: any;
 
-  /**
+  /*\
    * Width of the svg
-   */
+  \*/
   private svgWidth: number = 0;
 
-  /**
+  /*\
    * Height of the svg
-   */
+  \*/
   private svgHeight: number = 0;
 
-  /**
+  /*\
    * Margin of the component
-   */
+  \*/
   private margin:{top:number,right:number,bottom:number,left:number} = { top: 20, right: 20, bottom: 20, left: 50 }; //marge interne au svg
 
-  /**
+  /*\
    * Scale of the X axis
-   */
+  \*/
   private scaleX: ScaleTime<number,number> = d3.scaleTime();
 
-  /**
+  /*\
    * Scale of the Y axis
-   */
+  \*/
   private scaleY: ScaleLinear<number,number> = d3.scaleLinear();
 
-  /**
+  /*\
    * It's the smallest timestamp of data
-   */
+  \*/
   private minTime: number = 0;
 
-  /**
+  /*\
    * It's the biggest timestamp of data
-   */
+  \*/
   private maxTime: number = 0;
 
-  /**
+  /*\
    * It's the difference between the smallest and the biggest Time (maxTime - minTime)
-   */
+  \*/
   private lengthTime: number = 0;
 
-  /**
+  /*\
    * Array of area definition
-   */
+  \*/
   private area: d3.Area<[number, number]>[] = [];
 
-  /**
+  /*\
    * Array of line definition
-   */
+  \*/
   private line: d3.Line<[number, number]>[] = [];
 
-  /**
+  /*\
    * Array of line definition
-   */
+  \*/
   private poly: String[] = [];
-  /**
+  /*\
    * Boolean for switching between top and bottoms lines
    * This is made for enum so that, everytime a new enum appears,
    * the lineBoolBottom will switch sides with Top
-   */
+  \*/
   private lineSwitch: boolean = false;
 
-  /**
+  /*\
    * dataZoomed is a copy of data with the range specify
-   */
+  \*/
   private dataZoomed: Data[] = [];
 
-  /**
+  /*\
    * idZoom is the number of wheel notch
-   */
+  \*/
   private idZoom: number = 0;
 
-  /**
+  /*\
    * true if the CTRL Key of keyBoard is push
-   */
+  \*/
   private zoomSelected: boolean = false
 
-  /**
+  /*\
    * Svg definition of enum Labels
-   */
+  \*/
   private enumLabel!: Selection<SVGGElement,unknown,null,undefined>;
 
-  /**
+  /*\
    * Svg definition of the tooltip
-   */
+  \*/
   private tooltip!: Selection<SVGGElement,unknown,null,undefined>;
 
-  /**
+  /*\
    * Mode of the tooltip
-   */
+  \*/
   private modeToolTips: "normal" | "inverse" = "normal";
 
-  /**
+  /*\
    * true if the currentTimeline is selected
-   */
+  \*/
   private currentTimeSelected:boolean = false;
 
-  /**
+  /*\
    * true if the scrollbar is selected
-   */
+  \*/
   private scrollbarSelected:boolean = false;
 
-  /**
+  /*\
    * data length before the new change
-   */
+  \*/
   private lastDatalength:number = 0;
 
-  /**
+  /*\
    * Last position of the mouse
-   */
+  \*/
   private lastPos: number = 0;
 
 
@@ -309,17 +324,17 @@ export class BasicLinechartComponent implements OnInit {
   }
 
 
-  /**
+  /*\
    * Constructor : Init renderer
    * @param renderer
-   */
+  \*/
   constructor(private renderer: Renderer2) {
   }
 
 
-  /**
+  /*\
    * Copy data in dataZoomed, and build title
-   */
+  \*/
   public ngOnInit(): void {
     this.dataZoomed = [...this.data];
     this.lastDatalength=this.dataZoomed.length;
@@ -329,9 +344,9 @@ export class BasicLinechartComponent implements OnInit {
     })
   }
 
-  /**
+  /*\
    * Initialize linechart
-   */
+  \*/
   public ngAfterViewInit(): void {
     if (this.timeline != undefined) {
       let w = this.timeline.nativeElement.width.animVal.value;
@@ -351,13 +366,13 @@ export class BasicLinechartComponent implements OnInit {
     this.drawScrollbar();
   }
 
-  /**
+  /*\
    * Update linechart on data, range or current time changes
    * @param {SimpleChanges} changes
-   */
+  \*/
   public ngOnChanges(changes: SimpleChanges): void {
     if (changes['data']&&!changes['data'].firstChange) this.updateChart();
-    if ((changes['data']&&!changes['data'].firstChange&&this.range[0]!=0&&this.range[1]!=0)||(changes['range']&&!changes['range'].firstChange)) {
+    if ((changes['data']&&!changes['data'].firstChange&&this.range[0]!=0&&this.range[1]!=0)||(changes['config']&&!changes['config'].firstChange)) {
       this.idZoom=Math.round(Math.log(this.lengthTime/(this.range[1]-this.range[0]))/Math.log(1+this.speedZoom));
       this.range=this.controlRange(this.range[0],this.range[1]-this.range[0]);
       if(this.data.length!=0){
@@ -366,12 +381,12 @@ export class BasicLinechartComponent implements OnInit {
         this.updateLabels();
       }
     }
-    if (changes['currentTime']&&!changes['currentTime'].firstChange&&this.data.length!=0) this.updateCurrentTime();
+    if (changes['config']&&!changes['config'].firstChange&&this.data.length!=0) this.updateCurrentTime();
   }
 
-  /**
+  /*\
    * Add event listeners on the svg
-   */
+  \*/
   private buildEvent(): void{ // creer une timeline avec une seul donnée
     this.svg = d3.select(this.timeline.nativeElement)
       .append('g')
@@ -386,11 +401,11 @@ export class BasicLinechartComponent implements OnInit {
       .on("mouseover", (event: MouseEvent) => event.preventDefault());
   }
 
-  /**
+  /*\
    * Build the style (area, line or both) and the interpolation (step or linear) of lines
    * @param {Data} element
    * @param {number} index
-   */
+  \*/
   private buildStyleData(element:Data, index:number): void{
 
     if(element.style=="area" || element.style=="both"){
@@ -439,7 +454,7 @@ export class BasicLinechartComponent implements OnInit {
   }
 
 
-  private computePolyCoord(element: Data): polygonDef[] {
+  private computePolyCoord(element: Data, index: number): polygonDef[] {
 
     let allPolygonsPath: polygonDef[]= [];
     let polygonPath: polygonDef;
@@ -451,6 +466,12 @@ export class BasicLinechartComponent implements OnInit {
       if(element.style == "bool"){
         if((element.values[i][1] == -1) && (element.values[i][1] != element.values[i+1][1])){
 
+
+          if((this.scaleX(element.values[i+1][0]) - slopeMargin) - (this.scaleX(element.values[i][0]) + slopeMargin) < 0){
+            slopeMargin += ((this.scaleX(element.values[i+1][0]) - slopeMargin) - (this.scaleX(element.values[i][0]) + slopeMargin))/2;
+
+          }
+
           polygonPath = {
             "name": "polygon "+polyId,
             "points": [
@@ -460,13 +481,15 @@ export class BasicLinechartComponent implements OnInit {
               {"x" : this.scaleX(element.values[i+1][0]), "y" : this.svgHeight/2},
               {"x" : this.scaleX(element.values[i+1][0]) - slopeMargin, "y" : this.scaleY(element.values[i][1])},
               {"x" : this.scaleX(element.values[i][0]) + slopeMargin, "y" : this.scaleY(element.values[i][1])},
-            ]
+            ],
+            "color": this.config.colorMap?.lineIndex[index] != null ? this.config.colorMap?.lineIndex[index] : element.color,
 
 
           }
 
           allPolygonsPath[polyId] = polygonPath;
           polyId++;
+          slopeMargin = 5;
 
         }
 
@@ -480,7 +503,8 @@ export class BasicLinechartComponent implements OnInit {
               {"x" : this.scaleX(element.values[i+1][0]), "y" : 0},
               {"x" : this.scaleX(element.values[i+1][0]), "y" : this.svgHeight},
               {"x" : this.scaleX(element.values[i][0]), "y" : this.svgHeight},
-            ]
+            ],
+            "color": this.selectColor(this.intToEnum(element.values[i][1])),
           }
 
           allPolygonsPath[polyId] = polygonPath;
@@ -495,9 +519,9 @@ export class BasicLinechartComponent implements OnInit {
 
   }
 
-  /**
+  /*\
    * Save information for zoom.
-   */
+  \*/
   private buildZoom(): void{
     this.minTime = this.scale(this.data,"xMin");
     this.maxTime = this.scale(this.data,"xMax");
@@ -505,9 +529,9 @@ export class BasicLinechartComponent implements OnInit {
     this.idZoom=0;
   }
 
-  /**
+  /*\
    * Draw the tooltips's svg
-   */
+  \*/
   private drawToolTips(): void{ //creer le tooltips
     this.tooltip = this.svg.append("g")
       .attr("id", "tooltip")
@@ -579,9 +603,9 @@ export class BasicLinechartComponent implements OnInit {
     }
   }
 
-  /**
+  /*\
    * Draw horizontal and vertical axis and scale
-   */
+  \*/
   private drawAxis(): void{
     this.scaleX.range([0, this.svgWidth]);
     this.scaleX.domain([this.minTime,this.maxTime]);
@@ -597,6 +621,7 @@ export class BasicLinechartComponent implements OnInit {
       .call(d3.axisBottom(this.scaleX));
 
 
+
     // Configure the Y Axis
     this.data.forEach((element,index) => {
       if(element.style == "bool" || element.style == "enum"){
@@ -604,9 +629,10 @@ export class BasicLinechartComponent implements OnInit {
         if(this.discreteValue(this.data)){
           this.svg.append('g')
             .attr('class', 'yAxis')
-            .call(d3.axisLeft(this.scaleY).ticks(this.scale(this.data,"yMax")));
+            .call(d3.axisLeft(this.scaleY).ticks([]));
 
         }else {
+
           this.svg.append('g')
             .attr('class', 'yAxis')
             .call(d3.axisLeft(this.scaleY));
@@ -614,27 +640,73 @@ export class BasicLinechartComponent implements OnInit {
 
       } else {
 
-        if(this.discreteValue(this.data)){
-          this.svg.append('g')
-            .attr('class', 'yAxis')
-            .call(d3.axisLeft(this.scaleY).ticks(this.scale(this.data,"yMax")));
-
-        }else{
-          this.svg.append('g')
-            .attr('class', 'yAxis')
-            .call(d3.axisLeft(this.scaleY));
-
-        }
+        this.svg.append('g')
+          .attr('class', 'yAxis')
+          .call(d3.axisLeft(this.scaleY)
+            .ticks(2)
+            .tickValues([this.scale(this.data,"yMin"), this.scale(this.data,"yMax")]));
 
       }
 
     });
 
+
+
   }
 
-  /**
+  /*\
+   *  Update Axis
+  \*/
+
+  private updateAxis(): void {
+
+    // x Axis
+    this.svg.selectAll('.xAxis').call(d3.axisBottom(this.scaleX));
+
+    // y Axis
+    this.data.forEach((element,index) => {
+      if (element.style == "bool" || element.style == "enum" || element.style == "area") {
+        if(this.discreteValue(this.data)){
+          this.svg.selectAll('.yAxis')
+            .call(d3.axisLeft(this.scaleY).ticks([]));
+
+        } else {
+          this.svg.selectAll('.yAxis')
+            .call(d3.axisLeft(this.scaleY));
+
+        }
+
+      } else {
+        this.svg.selectAll('.yAxis')
+          .call(d3.axisLeft(this.scaleY)
+            .ticks(2)
+            .tickValues([this.scale(this.data,"yMin"), this.scale(this.data,"yMax")]));
+      }
+
+    });
+  }
+
+  private selectColor(type: string): string {
+
+    if (this.config.colorMap != null) {
+      switch (type) {
+        case "SUNNY" :
+          return this.config.colorMap?.sunny
+        case "RAINY" :
+          return this.config.colorMap?.rainy
+        case "CLOUDY" :
+          return this.config.colorMap?.cloudy
+      }
+    }
+
+    return "black";
+
+  }
+
+
+  /*\
    * Draw lines on the line chart
-   */
+  \*/
   private drawLineAndPath(): void{
 
     this.dataZoomed.forEach(
@@ -646,9 +718,9 @@ export class BasicLinechartComponent implements OnInit {
             .attr('class', 'area'+index)
             .attr('d', this.area[index])
             .attr("stroke-width", 0.1)
-            .attr('opacity', 0.3)
-            .style('fill', element.color)
-            .style('stroke', element.color)
+            .attr('opacity', 0.6)
+            .style('fill', this.config.colorMap?.lineIndex[index] != null ? this.config.colorMap?.lineIndex[index] : element.color)
+            .style('stroke', "black")
             .style('stroke-width', '2px');
         }
         if(element.style=="line" || element.style=="both"){
@@ -657,23 +729,23 @@ export class BasicLinechartComponent implements OnInit {
             .attr('class', 'line'+index)
             .attr('d', this.line[index])
             .style('fill', 'none')
-            .style('stroke', element.color)
+            .style('stroke', this.config.colorMap?.lineIndex[index] != null ? this.config.colorMap?.lineIndex[index] : element.color)
             .style('stroke-width', '2px');
         }
 
         if(element.style=="bool" || element.style=="enum"){
 
           this.svg.selectAll('.poly'+index).data([this.dataZoomed[index].values])
-            .data(this.computePolyCoord(element))
+            .data(this.computePolyCoord(element, index))
             .enter().append("polygon")
             .attr('class', 'poly'+index)
             .attr("points", (d: polygonDef) => {
-               return d.points.map((d: points) => {
+              return d.points.map((d: points) => {
                 return [d.x,d.y].join(",");
               }).join(" ");
             })
-            .style("fill", element.color)
-            .style("fill-opacity", 0.4)
+            .style("fill", (d:polygonDef) => d.color)
+            .style("fill-opacity", 0.6)
             .style("stroke", "black")
             .style("strokeWidth", "10px");
 
@@ -685,10 +757,12 @@ export class BasicLinechartComponent implements OnInit {
   }
 
 
-  /**
+  /*\
    * Build and draw labels
-   */
+  \*/
   private buildLabels():void {
+
+    console.log("Hop");
 
     this.enumLabel = this.svg.selectAll(".label").data(this.dataZoomed);
 
@@ -699,41 +773,43 @@ export class BasicLinechartComponent implements OnInit {
 
 
     this.dataZoomed.forEach((element) => {
+
       if (element.style == "enum") {
         let i: number = 0;
-        let avgLetterLength: number = 10.5; // For 15px of font-size
+        let avgLetterLength: number = 10.75; // For 15px of font-size
 
-        for (i; i < element.values.length-1; i++) {
+        for (i; i < element.values.length - 1; i++) {
 
-          if(this.scaleX(element.values[i+1][0]) - this.scaleX(element.values[i][0]) >= avgLetterLength*this.intToEnum(element.values[i][1]).length){
+          if (this.scaleX(element.values[i + 1][0]) - this.scaleX(element.values[i][0]) >= avgLetterLength * this.intToEnum(element.values[i][1]).length) {
 
             gs.append("text")
               .attr("class", "label")
               .text(this.intToEnum(element.values[i][1]))
               .style("font-size", "15px")
-              .attr("transform", "translate(" + this.scaleX(element.values[i][0]) + "," + this.svgHeight / 2 + ")");
+              .attr("transform", "translate(" + (this.scaleX(element.values[i][0])+4) + "," + this.svgHeight / 2 + ")");
 
-            // console.log("Here " + element.label + " - " + i + " | " + this.scaleX(element.values[i][0]));
+            console.log("Here " + element.label + " - " + i + " | " + (this.scaleX(element.values[i][0])+2));
 
           }
         }
       }
     });
+
   }
 
-  /**
+  /*\
    * Update the Labels
-   */
+  \*/
 
   private updateLabels(): void {
-    d3.selectAll(".label").remove();
+      this.svg.selectAll(".label").remove();
     this.buildLabels();
   }
 
 
-  /**
+  /*\
    * Translate numerical value to enumeration
-   */
+  \*/
 
   private  intToEnum(value: number): string{
     if(value==1) return "SUNNY";
@@ -744,9 +820,9 @@ export class BasicLinechartComponent implements OnInit {
   }
 
 
-  /**
+  /*\
    * Draw the vertical line which represents the current time
-   */
+  \*/
   private drawLineCurrentTime(): void{
     if(this.data.length!=0){
       if(this.currentTime==0){
@@ -760,17 +836,17 @@ export class BasicLinechartComponent implements OnInit {
         .attr('d', d3.line()
           .x((d: number[]) => x=this.scaleX(d[0]))
           // .y((d: number[]) => this.scaleY(d[1])))
-        .y((d: number[]) => {
+          .y((d: number[]) => {
             // console.log("START --------------------------------");
             // console.log("this.controlDomain()[0] - " +this.controlDomain()[0]);
             // console.log("this.height] - " +this.height);
             // console.log("d[0] = " + d[0] + " | d[1] = " + d[1]);
             // console.log("this.scaleX - d[0] = " + this.scaleX(d[0]) + " | this.scaleY - d[1] = " + this.scaleY(d[1]));
             // console.log("--------------------------------------\n");
-          return d[1];
+            return d[1];
           }))
         // .x((d: number[]) => 10)
-          // .y((d: number[]) => 50))
+        // .y((d: number[]) => 50))
         .style('fill', 'none')
         .style('stroke', 'red')
         .style('stroke-width', '3px');
@@ -791,9 +867,9 @@ export class BasicLinechartComponent implements OnInit {
     }
   }
 
-  /**
+  /*\
    * Draw the scrollbar and event listener on it
-   */
+  \*/
   private drawScrollbar(): void{
     if(this.scrollBar){
       this.zoneScrollbar.nativeElement.style.width = this.svgWidth+"px";
@@ -813,9 +889,9 @@ export class BasicLinechartComponent implements OnInit {
     }
   }
 
-  /**
+  /*\
    * Update all the line chart (horizontal and vertical axis and scale, data, lines and range) on data changes.
-   */
+  \*/
   private updateChart(): void{
     this.dataZoomed = [...this.data];
     this.data.forEach(
@@ -837,14 +913,9 @@ export class BasicLinechartComponent implements OnInit {
     this.scaleY.range([this.svgHeight, 0]);
     this.controlDomain();
     this.scaleY.domain(this.controlDomain());
-    if(this.discreteValue(this.data)){
-      this.svg.selectAll('.yAxis')
-        .call(d3.axisLeft(this.scaleY).ticks(this.scale(this.data,"yMax")));
-    }else{
-      this.svg.selectAll('.yAxis')
-        .call(d3.axisLeft(this.scaleY));
-    }
-    this.svg.selectAll('.xAxis').call(d3.axisBottom(this.scaleX));
+
+    this.updateAxis();
+
     this.svg.selectAll('.currentTimeLine').remove();
     this.svg.selectAll('.currentTimeSelector').remove();
     this.updateLine();
@@ -860,23 +931,24 @@ export class BasicLinechartComponent implements OnInit {
     this.lastDatalength=this.dataZoomed.length;
   }
 
-  /**
+  /*\
    * Update horizontal axis, current time line, lines and scrollbar
    * @param {number} min of the new range
    * @param {number} max of the new range
-   */
+  \*/
   private updateSvg(min: number, max: number){
     this.scaleX.domain([min,max]);
     this.svg.selectAll('.xAxis').call(d3.axisBottom(this.scaleX));
     this.updateLine();
     this.updateCurrentTime();
     this.updateScrollbar(min,max);
+    this.updateLabels();
 
   }
 
-  /**
+  /*\
    * Update the display of lines
-   */
+  \*/
   private updateLine(): void{
 
     let lineUpdate;
@@ -897,9 +969,9 @@ export class BasicLinechartComponent implements OnInit {
           .merge(areaUpdate)
           .attr('d', this.area[index])
           .attr("stroke-width", 0.1)
-          .attr('opacity', 0.3)
-          .style('fill', element.color)
-          .style('stroke', element.color)
+          .attr('opacity', 0.6)
+          .style('fill', this.config.colorMap?.lineIndex[index] != null ? this.config.colorMap?.lineIndex[index] : element.color)
+          .style('stroke', "black")
           .style('stroke-width', '2px');
       }
       if(element.style=="line" || element.style=="both"){
@@ -911,7 +983,7 @@ export class BasicLinechartComponent implements OnInit {
           .merge(lineUpdate)
           .attr('d', this.line[index])
           .style('fill', 'none')
-          .style('stroke', element.color)
+          .style('stroke', this.config.colorMap?.lineIndex[index] != null ? this.config.colorMap?.lineIndex[index] : element.color)
           .style('stroke-width', '2px');
       }
 
@@ -920,7 +992,7 @@ export class BasicLinechartComponent implements OnInit {
         // console.log("HERE ....");
         polyUpdate= this.svg.selectAll('.poly'+index).data([this.dataZoomed[index].values]);
         polyUpdate
-          .data(this.computePolyCoord(element))
+          .data(this.computePolyCoord(element, index))
           .enter()
           .append("polygon")
           .attr('class', 'poly'+index)
@@ -935,8 +1007,8 @@ export class BasicLinechartComponent implements OnInit {
               return [d.x,d.y].join(",");
             }).join(" ");
           })
-          .style("fill", element.color)
-          .style("fill-opacity", 0.4)
+          .style("fill", (d:polygonDef) => d.color)
+          .style("fill-opacity", 0.6)
           .style("stroke", "black")
           .style("strokeWidth", "10px");
 
@@ -945,9 +1017,9 @@ export class BasicLinechartComponent implements OnInit {
     });
   }
 
-  /**
+  /*\
    * Update the position of the current time line
-   */
+  \*/
   private updateCurrentTime(): void{
     let lineUpdate = this.svg.selectAll('.currentTimeLine').datum([[this.currentTime,this.height],[this.currentTime,this.scaleY(this.svgHeight)]])
     let x:number=0;
@@ -971,20 +1043,20 @@ export class BasicLinechartComponent implements OnInit {
     this.svg.selectAll('.currentTimeSelector').attr('cx',x);
   }
 
-  /**
+  /*\
    * Update the position of the scrollbar
    * @param {number} min of the new range
    * @param {number} max of the new range
-   */
+  \*/
   private updateScrollbar(min:number, max:number): void{
     this.scrollbar.nativeElement.style.marginLeft= this.svgWidth*(min-this.minTime)/(this.lengthTime) + "px";
     this.scrollbar.nativeElement.style.width= this.svgWidth*(max-min)/(this.lengthTime) + "px";
   }
 
-  /**
+  /*\
    * Change the range, control it, update datas, update the linechart and then emit the new range.
    * @param {MouseEvent} event
-   */
+  \*/
   private updateRange(event: MouseEvent): void{
     if(this.scrollbarSelected){
       event.preventDefault();
@@ -1000,14 +1072,16 @@ export class BasicLinechartComponent implements OnInit {
       this.updateSvg(this.range[0],this.range[1]);
       this.rangeChange.emit(this.range);
       this.lastPos=pos;
+
     }
+
   }
 
-  /**
+  /*\
    * Change this.dataZoomed at range changes
    * @param {number} min of the new range
    * @param {number} max of the new range
-   */
+  \*/
   private updateDataZoom(min:number,max:number): void{
     this.data.forEach((element,index) => {
       this.dataZoomed[index]={
@@ -1029,18 +1103,18 @@ export class BasicLinechartComponent implements OnInit {
     })
   }
 
-  /**
+  /*\
    * Remove and build a new tooltips
-   */
+  \*/
   private updateToolTips(): void{
     this.tooltip.remove();
     this.drawToolTips();
   }
 
-  /**
+  /*\
    * Active movement of scrollbar on mousedown on it
    * @param {MouseEvent} event
-   */
+  \*/
   private activeScrollbar(event: MouseEvent): void{
     if(this.idZoom!=0){
       this.scrollbarSelected=true;
@@ -1048,18 +1122,18 @@ export class BasicLinechartComponent implements OnInit {
     }
   }
 
-  /**
+  /*\
    * Desactive movement of scrollbar on mouseup or mouseleave on it
-   */
+  \*/
   private desactiveScrollbar(): void{
     this.scrollbarSelected=false;
     this.lastPos=0;
   }
 
-  /**
+  /*\
    * Show the tooltips on the movement of the mouse
    * @param {MouseEvent} event
-   */
+  \*/
   private showInfo(event: MouseEvent): void{
 
     if (this.dataZoomed[0] != undefined && this.dataZoomed.length <2) {
@@ -1101,17 +1175,17 @@ export class BasicLinechartComponent implements OnInit {
     }
   }
 
-  /**
+  /*\
    * Hide the tooltips when the mouse leave the svg
-   */
+  \*/
   private hideInfo(): void{
     this.tooltip.style("display", "none");
   }
 
-  /**
+  /*\
    * Update the range (reduce or increase) of the linechart on scroll
    * @param {WheelEvent} event
-   */
+  \*/
   private activeZoom(event: WheelEvent): void{
     event.preventDefault();
     let lastLengthLocalTime = this.lengthTime / Math.pow(1+this.speedZoom,this.idZoom);
@@ -1130,19 +1204,29 @@ export class BasicLinechartComponent implements OnInit {
         this.updateDataZoom(this.range[0],this.range[1]);
         this.updateSvg(this.range[0],this.range[1]);
         this.rangeChange.emit(this.range);
+
       }else{
         this.idZoom--;
       }
     }
   }
 
-  /**
+  /*\
    * Update the value of current time on the movement of the mouse
    * @param {MouseEvent} event
-   */
+  \*/
   private moveCurrentTime(event: MouseEvent): void{
     event.preventDefault();
+    // console.log("moveCurrentTime - clientX = " + event.clientX + " | marginleft : " + this.margin.left);
+    // console.log("moveCurrentTime - invert = " + this.scaleX.invert(event.clientX-this.margin.left));
+    // console.log("this.dataZoomed : ");
+    // console.log(this.dataZoomed);
+
     let pos = this.scaleX.invert(event.clientX-this.margin.left).getTime();
+    // console.log("moveCurrentTime - pos = " + pos);
+    // console.log("moveCurrentTime - xMin = " + this.scale(this.dataZoomed,"xMin"));
+    // console.log("moveCurrentTime - xMax = " + this.scale(this.dataZoomed,"xMax"));
+
     if(pos<this.scale(this.dataZoomed,"xMin")){
       this.currentTime=this.scale(this.dataZoomed,"xMin");
     }else if(pos>this.scale(this.dataZoomed,"xMax")){
@@ -1150,16 +1234,19 @@ export class BasicLinechartComponent implements OnInit {
     }else{
       this.currentTime=pos;
     }
+
+    // console.log("moveCurrentTime - this.currentTime = " + this.currentTime);
+
     this.updateCurrentTime();
     this.currentTimeChange.emit(this.currentTime);
   }
 
-  /**
+  /*\
    * Control the range based on data's timestamp and the new range
    * @param {number} min of the new range
    * @param {number} length of the new range
    * @returns a adjusted range based on data's timestamp
-   */
+  \*/
   private controlRange(min:number, length:number) : [number,number]{
     if(this.minTime>min) min=this.minTime;
     let max = min + length;
@@ -1171,10 +1258,10 @@ export class BasicLinechartComponent implements OnInit {
     return [min,max];
   }
 
-  /**
+  /*\
    * Control the domain based on data's value type and the input domain
    * @returns a new domain auto-scaled if the input domain is equal to [0,0] or the data's value are positive integers, else return the input domain
-   */
+  \*/
   private controlDomain():[number,number]{
     if((this.domainY[0]==0&&this.domainY[1]==0)||this.discreteValue(this.data)){
       return [this.scale(this.data,"yMin"),this.scale(this.data,"yMax")];
@@ -1183,20 +1270,20 @@ export class BasicLinechartComponent implements OnInit {
     }
   }
 
-  /**
+  /*\
    * Control the color based on css-colors-name and hex-color-code
    * @param {string} color
    * @returns false if the param color isn't a css-colors-name or a valid hex-color-code
-   */
+  \*/
   private controlColor(color: string):boolean{
     let s = new Option().style;
     s.color = color;
     return s.color!="";
   }
 
-  /**
+  /*\
    * Control the speedZoom if it isn't between 0 and 1.
-   */
+  \*/
   private controlSpeedZoom(): void{
     if(this.speedZoom<=0){
       this.speedZoom=0.1;
@@ -1205,12 +1292,12 @@ export class BasicLinechartComponent implements OnInit {
     }
   }
 
-  /**
+  /*\
    * Determine the minimum or maximum of the horizontal or vertical axis in data
    * @param {Data[]} data Array of Data
-   * @param {"xMin" | "xMax" | "yMin" | "yMax"} s precise wihch scale we want
+   * @param {"xMin" | "xMax" | "yMin" | "yMax"} s precise which scale we want
    * @returns the value that matches with the parameter s in data
-   */
+  \*/
   private scale(data: Data[], s: "xMin" | "xMax" | "yMin" | "yMax"): number {
     let res: number = 0;
     data.forEach(
@@ -1220,14 +1307,15 @@ export class BasicLinechartComponent implements OnInit {
         else if((s=="xMin"&&((i==0&&index==0)||element[0]<res))||(s=="xMax"&&((i==0&&index==0)||element[0]>res))) res=element[0];
       })
     )
+
     return res;
   }
 
-  /**
+  /*\
    *Check type of data (positive integer or float)
    *@param {Data[]} data Array of Data
    *@returns false if there is at least one value in data that's not a positive integer
-   */
+  \*/
   private discreteValue(data: Data[]): boolean{
     for(let i:number=0;i<data.length;i++){
       for(let j:number=0;j<data[i].values.length;j++){
@@ -1237,12 +1325,12 @@ export class BasicLinechartComponent implements OnInit {
     return true;
   }
 
-  /**
+  /*\
    * Round a number with a precision
    * @param {number} num
    * @param {number} precision
    * @returns a num with a number of decimal (precision)
-   */
+  \*/
   private roundDecimal(num : number, precision:number): number{
     let tmp: number = Math.pow(10, precision);
     return Math.round( num*tmp )/tmp;

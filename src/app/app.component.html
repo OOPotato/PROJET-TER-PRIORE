@@ -1,38 +1,51 @@
 <!-- Toolbar -->
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-  </head>
-  <body>
-    <lib-basic-linechart
-      [knobCurrentTime] = true
-      [data]=data2
-      [range]=range
-      (rangeChange)="updateRange($event)"
-      [currentTime]=currentTime
-      (currentTimeChange)="updateCurrentTime($event)"
-    ></lib-basic-linechart>
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<body>
 
-    <lib-basic-linechart
-      [data]=data6
-      [range]=range
-      (rangeChange)="updateRange($event)"
-      [currentTime]=currentTime
-      (currentTimeChange)="updateCurrentTime($event)"
-    ></lib-basic-linechart>
+<!-------------------------------------------------------------------------------------------------------------------------------------------------------------->
+<!-------------------------------------------------------------------------------------------------------------------------------------------------------------->
 
-    <lib-basic-linechart
-      [scrollBar]=true
-      [data]=dataset
-      [range]=range
-      (rangeChange)="updateRange($event)"
-      [currentTime]=currentTime
-      (currentTimeChange)="updateCurrentTime($event)"
-    ></lib-basic-linechart>
 
-    <button (click)="change()">Change for next graph</button><span> Dataset number <span id="datasetNumber">2</span></span>
+<lib-basic-linechart
+  [config] = "{knobCurrentTime: true, range: config.range, currentTime: config.currentTime, colorMap: linecharts[0].colorScheme}"
+  [data]=linecharts[0].data
+  (rangeChange)="updateRange($event)"
+  (currentTimeChange)="updateCurrentTime($event)"
+></lib-basic-linechart>
 
-  </body>
+<button (click)="changeLinechart(0, BACK)">Graph before</button>
+<button (click)="changeLinechart(0, NEXT)">Next graph</button><span> Dataset number {{linecharts[0].data[0].label}}</span>
+
+<!-------------------------------------------------------------------------------------------------------------------------------------------------------------->
+<!-------------------------------------------------------------------------------------------------------------------------------------------------------------->
+
+<lib-basic-linechart
+  [config] = "{knobCurrentTime: true, range: config.range, currentTime: config.currentTime, colorMap: linecharts[1].colorScheme}"
+  [data]=linecharts[1].data
+  (rangeChange)="updateRange($event)"
+  (currentTimeChange)="updateCurrentTime($event)"
+></lib-basic-linechart>
+
+<button (click)="changeLinechart(1, BACK)">Graph before</button>
+<button (click)="changeLinechart(1, NEXT)">Next graph</button><span> Dataset number {{linecharts[1].data[0].label}}</span>
+
+<!-------------------------------------------------------------------------------------------------------------------------------------------------------------->
+<!-------------------------------------------------------------------------------------------------------------------------------------------------------------->
+
+<lib-basic-linechart
+  [config] = "{knobCurrentTime: true, scrollBar: true, range: config.range, currentTime: config.currentTime, colorMap: linecharts[2].colorScheme}"
+  [data]=linecharts[2].data
+  (rangeChange)="updateRange($event)"
+  (currentTimeChange)="updateCurrentTime($event)"
+></lib-basic-linechart>
+
+<button (click)="changeLinechart(2, BACK)">Graph before</button>
+<button (click)="changeLinechart(2, NEXT)">Next graph</button><span> Dataset number {{linecharts[2].data[0].label}}</span>
+
+</body>
 </html>
