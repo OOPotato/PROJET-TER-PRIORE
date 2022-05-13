@@ -461,14 +461,13 @@ export class BasicLinechartComponent implements OnInit {
     let i:   number = 0;
     while(i < element.values.length-1) {
       if(element.style == "bool"){
-        if((element.values[i][1] == -1) && (element.values[i][1] != element.values[i+1][1])){
+        if((element.values[i][1] == -1) && (element.values[i][0] != element.values[i+1][0])){
 
 
           if((this.scaleX(element.values[i+1][0]) - slopeMargin) - (this.scaleX(element.values[i][0]) + slopeMargin) < 0){
             slopeMargin += ((this.scaleX(element.values[i+1][0]) - slopeMargin) - (this.scaleX(element.values[i][0]) + slopeMargin))/2;
 
           }
-
 
           polygonPath = {
             "name": "polygon "+polyId,
@@ -481,7 +480,6 @@ export class BasicLinechartComponent implements OnInit {
               {"x" : this.scaleX(element.values[i][0]) + slopeMargin, "y" : this.scaleY(element.values[i][1])},
             ],
             "color": this.config.colorMap?.lineIndex[index] != null ? this.config.colorMap?.lineIndex[index] : element.color,
-
 
           }
 
@@ -983,7 +981,6 @@ export class BasicLinechartComponent implements OnInit {
 
       if(element.style=="bool" || element.style=="enum"){
 
-        // console.log("HERE ....");
         polyUpdate= this.svg.selectAll('.poly'+index).data([this.dataZoomed[index].values]);
         polyUpdate
           .data(this.computePolyCoord(element, index))
@@ -992,11 +989,6 @@ export class BasicLinechartComponent implements OnInit {
           .attr('class', 'poly'+index)
           .merge(polyUpdate)
           .attr("points", (d: polygonDef) => {
-            // console.log("Name is : " + d.name);
-            // console.log("Name is : " + d.points[0].x + " " + d.points[0].y);
-            // console.log("Result of build is : " + d.points.map((d: points) => {
-            //   return [d.x,d.y].join(",");
-            // }).join(" "));
             return d.points.map((d: points) => {
               return [d.x,d.y].join(",");
             }).join(" ");

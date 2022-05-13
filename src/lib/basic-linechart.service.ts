@@ -250,7 +250,7 @@ export class DataService {
   /**
    * Transform string in number
    * @param s
-   * @returns 1 if s=='ON', 0 if s=='OFF' else -1
+   * @returns 1 if s=='ON', -1 if s=='OFF' else 1
    */
   public parseBool(s: string):number {
     if(s=='ON') return -1;

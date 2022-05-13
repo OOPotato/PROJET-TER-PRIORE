@@ -75,10 +75,10 @@ export class AppComponent {
 
     this.linecharts = [];
     this.linecharts.push({
-      data: this.allDatasets[7],
+      data: this.allDatasets[5],
       colorScheme: defaultColorScheme,
-      display: 7,
-      name: this.getAllNamesOfDatasets(this.allDatasets[7])
+      display: 5,
+      name: this.getAllNamesOfDatasets(this.allDatasets[5])
     });
     this.linecharts.push({
       data: this.allDatasets[8],
@@ -137,6 +137,7 @@ export class AppComponent {
     this.linecharts[linechart].name = this.getAllNamesOfDatasets(this.linecharts[linechart].data);
 
   }
+
   public getAllNamesOfDatasets(datasets: Data[]): string {
     let result = "";
     datasets.forEach((data) => {
@@ -147,10 +148,6 @@ export class AppComponent {
 
     return result;
   }
-
-  // public changeLinechart(linechart: number, datasets: Data[]){
-  //
-  // }
 
 }
 
