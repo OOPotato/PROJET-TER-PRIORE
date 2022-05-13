@@ -11,6 +11,7 @@ interface linechart {
   data: Data[];
   colorScheme: colorMap;
   display: number,
+  name: string,
 }
 
 const defaultColorScheme: colorMap = {
@@ -43,41 +44,10 @@ export class AppComponent {
   public BACK = -1;
   public NEXT = 1;
 
+  public blabla: Data[];
+
   constructor(data : DataService) {
     this.allDatasets = data.dataExemples;
-
-    this.colorScheme1 = {
-      sunny : "#d70303",
-      rainy : "#00abff",
-      cloudy : "#0d8a5a",
-      lineIndex: ["green"]
-    }
-    this.colorScheme2 = {
-      sunny : "#d74303",
-      rainy : "#0a4059",
-      cloudy : "#7c7a98",
-      lineIndex: ["blue"]
-    }
-
-    this.linecharts = [];
-    this.linecharts.push({
-      data: this.allDatasets[7],
-      colorScheme: defaultColorScheme,
-      display: 7
-    });
-
-    this.linecharts.push({
-      data: this.allDatasets[8],
-      colorScheme: this.colorScheme1,
-      display: 8
-    });
-
-    this.linecharts.push({
-      data: this.allDatasets[9],
-      colorScheme: this.colorScheme2,
-      display: 9
-    });
-
 
     this.config = {
       width: 900,
@@ -89,6 +59,41 @@ export class AppComponent {
       scrollBar: false,
       knobCurrentTime: false,
     }
+
+    this.colorScheme1 = {
+      sunny : "#d70303",
+      rainy : "#00abff",
+      cloudy : "#0d8a5a",
+      lineIndex: ["green", "#e19b0f"]
+    }
+    this.colorScheme2 = {
+      sunny : "#d74303",
+      rainy : "#0a4059",
+      cloudy : "#7c7a98",
+      lineIndex: ["#2883ea", "#09a811"]
+    }
+
+    this.linecharts = [];
+    this.linecharts.push({
+      data: this.allDatasets[7],
+      colorScheme: defaultColorScheme,
+      display: 7,
+      name: this.getAllNamesOfDatasets(this.allDatasets[7])
+    });
+    this.linecharts.push({
+      data: this.allDatasets[8],
+      colorScheme: this.colorScheme1,
+      display: 8,
+      name: this.getAllNamesOfDatasets(this.allDatasets[8])
+    });
+    this.linecharts.push({
+      data: this.allDatasets[9],
+      colorScheme: this.colorScheme2,
+      display: 9,
+      name: this.getAllNamesOfDatasets(this.allDatasets[9])
+    });
+
+    this.blabla = data.dataExemples[0];
 
   }
 
@@ -108,7 +113,44 @@ export class AppComponent {
     if(this.linecharts[linechart].display == -1) this.linecharts[linechart].display = this.allDatasets.length-1;
 
     this.linecharts[linechart].data = this.allDatasets[this.linecharts[linechart].display];
+    this.linecharts[linechart].name = this.getAllNamesOfDatasets(this.linecharts[linechart].data);
   }
+
+  public updateLinechart(linechart: number, data: Data[]) {
+
+    let display: number = 0;
+    let done: boolean = false;
+    let n=0;
+    let value = this.getAllNamesOfDatasets(data);
+
+    while(!done && n<this.allDatasets.length){
+      if(value == this.getAllNamesOfDatasets(this.allDatasets[n])){
+        display = n
+        done = true;
+      }
+      n++
+    }
+
+    this.linecharts[linechart].display = display;
+
+    this.linecharts[linechart].data = this.allDatasets[this.linecharts[linechart].display];
+    this.linecharts[linechart].name = this.getAllNamesOfDatasets(this.linecharts[linechart].data);
+
+  }
+  public getAllNamesOfDatasets(datasets: Data[]): string {
+    let result = "";
+    datasets.forEach((data) => {
+      result = result + data.label + ", ";
+    });
+
+    result = result.slice(0, result.length-2)
+
+    return result;
+  }
+
+  // public changeLinechart(linechart: number, datasets: Data[]){
+  //
+  // }
 
 }
 

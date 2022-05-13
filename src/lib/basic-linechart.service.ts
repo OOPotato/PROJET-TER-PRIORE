@@ -80,7 +80,10 @@ export class DataService {
   "2016-07-25 16:13:05,237";"Temperature_Salon";"26.28"
   "2016-07-25 16:23:05,172";"Temperature_Salon";"26.22"
   "2016-07-25 16:28:05,244";"Temperature_Salon";"26.16"
-  "2016-07-25 16:29:55,490";"Temperature_Salon";"26.14"
+  "2016-07-25 16:34:50,177";"Temperature_Salon";"26.16"
+  "2016-07-25 16:39:50,128";"Temperature_Salon";"26.15"
+  "2016-07-25 16:44:50,065";"Temperature_Salon";"26.12"
+
 
   "2016-07-25 15:47:24,459";"Temperature_Chambre";"21.34"
   "2016-07-25 22:47:24,459";"Temperature_Chambre";"21.38"
@@ -135,59 +138,6 @@ export class DataService {
   public dataExemples: Data[][] = [];
 
   public nbOfData: number;
-
-  /**
-   * Dataset 1
-   */
-  public dataExample1: Data[] = [];
-
-  /**
-   * Dataset 2
-   */
-  public dataExample2: Data[] = [];
-
-  /**
-   * Dataset 3
-   */
-  public dataExample3: Data[] = [];
-
-  /**
-   * Dataset 4
-   */
-  public dataExample4: Data[] = [];
-
-  /**
-   * Dataset 5
-   */
-  public dataExample5: Data[] = [];
-
-  /**
-   * Dataset 6
-   */
-  public dataExample6: Data[] = [];
-
-  /**
-   * Dataset 7
-   */
-  public dataExample7: Data[] = [];
-
-  /**
-   * Dataset 8
-   */
-  public dataExample8: Data[] = [];
-
-
-  /**
-   * Dataset 9
-   */
-  public dataExample9: Data[] = [];
-
-
-  /**
-   * Dataset 10
-   */
-  public dataExample10: Data[] = [];
-
 
   /**
    * Constructor
@@ -247,17 +197,6 @@ export class DataService {
       interpolation: "linear"
     }
 
-    this.dataExample1.push(da2);
-    this.dataExample2.push(this.generateData(str,"PC6","#048ba8","bool", "step",this.parseBool));
-    this.dataExample3.push(this.generateData(str,"PC6","#124568","area", "step",this.parseBool));
-    this.dataExample4.push(this.generateData(str,"Temperature_Salon", "purple", "line", "linear", parseFloat));
-    this.dataExample5.push(this.generateData(str,"Temperature_Cuisine", "gold", "line", "step", parseFloat));
-    this.dataExample6.push(this.generateData(str,"PC3","green","bool", "step",this.parseBool));
-    this.dataExample7.push(this.generateData(str,"PC5", "pink", "bool", "step", this.parseBool));
-    this.dataExample8.push(this.generateData(str,"Enum_1", "red", "enum", "step", this.parseEnum));
-    this.dataExample9.push(this.generateData(str,"Enum_2", "#6a13ce", "enum", "step", this.parseEnum));
-    this.dataExample10.push(this.generateData(str,"Temperature_Chambre", "#ff5e21", "line", "linear", parseFloat));
-
     this.dataExemples[0].push(da2);
     this.dataExemples[1].push(this.generateData(str,"PC6","#048ba8","bool", "step",this.parseBool));
     this.dataExemples[2].push(this.generateData(str,"PC6","#124568","area", "step",this.parseBool));
@@ -270,6 +209,15 @@ export class DataService {
     this.dataExemples[8].push(this.generateData(str,"Enum_2", "#6a13ce", "enum", "step", this.parseEnum));
     this.dataExemples.push([]);
     this.dataExemples[9].push(this.generateData(str,"Temperature_Chambre", "#ff5e21", "line", "linear", parseFloat));
+    this.dataExemples.push([]);
+    this.dataExemples[10].push(this.generateData(str,"PC5", "#29fad4", "bool", "step", this.parseBool));
+    this.dataExemples[10].push(this.generateData(str,"PC6","#048ba8","bool", "step",this.parseBool));
+    this.dataExemples.push([]);
+    this.dataExemples[11].push(this.generateData(str,"Enum_2", "#6a13ce", "enum", "step", this.parseEnum));
+    this.dataExemples[11].push(this.generateData(str,"Enum_1", "red", "enum", "step", this.parseEnum));
+    this.dataExemples.push([]);
+    this.dataExemples[12].push(this.generateData(str,"Temperature_Salon", "purple", "line", "linear", parseFloat));
+    this.dataExemples[12].push(this.generateData(str,"Temperature_Cuisine", "gold", "line", "step", parseFloat));
 
 
     // TODO IDEA BOOL IMPLEMENTATION //

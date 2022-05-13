@@ -48,7 +48,6 @@ export interface Data {
   interpolation: "linear" | "step";
 }
 
-
 export interface CONFIG {
   width: number;
   height: number;
@@ -104,11 +103,9 @@ interface points {
   template: `
     <div #element>
       <!--    <h2>{{ title }}</h2> TODO SUPP -->
-      <svg #root [attr.width]="width" [attr.height]="height"></svg>
+      <svg #root [attr.width]="width" [attr.height]="height" style="vertical-align: top"></svg>
     </div>
-    <div #zone><div #scroll></div></div>
-
-  `,
+    <div #zone><div #scroll></div></div>`,
   styles: [
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -212,7 +209,7 @@ export class BasicLinechartComponent implements OnInit {
   /*\
    * Margin of the component
   \*/
-  private margin:{top:number,right:number,bottom:number,left:number} = { top: 20, right: 20, bottom: 20, left: 50 }; //marge interne au svg
+  private margin:{top:number,right:number,bottom:number,left:number} = { top: 20, right: 20, bottom: 20, left: 30 }; //marge interne au svg
 
   /*\
    * Scale of the X axis
@@ -471,6 +468,7 @@ export class BasicLinechartComponent implements OnInit {
             slopeMargin += ((this.scaleX(element.values[i+1][0]) - slopeMargin) - (this.scaleX(element.values[i][0]) + slopeMargin))/2;
 
           }
+
 
           polygonPath = {
             "name": "polygon "+polyId,
@@ -762,8 +760,6 @@ export class BasicLinechartComponent implements OnInit {
   \*/
   private buildLabels():void {
 
-    console.log("Hop");
-
     this.enumLabel = this.svg.selectAll(".label").data(this.dataZoomed);
 
     var gs = this.enumLabel
@@ -786,9 +782,7 @@ export class BasicLinechartComponent implements OnInit {
               .attr("class", "label")
               .text(this.intToEnum(element.values[i][1]))
               .style("font-size", "15px")
-              .attr("transform", "translate(" + (this.scaleX(element.values[i][0])+4) + "," + this.svgHeight / 2 + ")");
-
-            console.log("Here " + element.label + " - " + i + " | " + (this.scaleX(element.values[i][0])+2));
+              .attr("transform", "translate(" + (this.scaleX(element.values[i][0])+4) + "," + ((this.svgHeight / 2) + avgLetterLength/2) + ")");
 
           }
         }
