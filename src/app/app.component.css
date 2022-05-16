@@ -4,14 +4,24 @@ th{
   font-weight: normal;
   padding-bottom: 0;
   padding-top: 0;
-  border-bottom: 1px solid #8ea5c5;
   border-right: 1px solid #8ea5c5;
 
+
+}
+
+.lastrow {
+  border-bottom: none;
+}
+
+.lastcolumn {
+  border-right: none;
 }
 
 tr {
   padding-left: 0;
   padding-right: 0;
+  border-bottom: 1px solid #8ea5c5;
+
 }
 
 table {

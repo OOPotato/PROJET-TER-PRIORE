@@ -46,6 +46,11 @@ export interface Data {
    * Recommanded : step for discrete values and linear for continuous values
   \*/
   interpolation: "linear" | "step";
+
+  // /*\
+  //  * Line and Enums colors
+  // \*/
+  // colorScheme: colorMap;
 }
 
 export interface CONFIG {
@@ -71,7 +76,7 @@ const defaultColorMap: colorMap = {
   sunny : "#d77403",
   rainy : "#0473a6",
   cloudy : "#6d8d9d",
-  lineIndex: ["red"]
+  lineIndex: ["#ff0000"]
 }
 
 const defaultConfig: CONFIG = {
@@ -369,7 +374,7 @@ export class BasicLinechartComponent implements OnInit {
   \*/
   public ngOnChanges(changes: SimpleChanges): void {
     if (changes['data']&&!changes['data'].firstChange) this.updateChart();
-    if ((changes['data']&&!changes['data'].firstChange&&this.range[0]!=0&&this.range[1]!=0)||(changes['config']&&!changes['config'].firstChange)) {
+    if ((changes['data']&&!changes['data'].firstChange&&this.range[0]!=0&&this.range[1]!=0)||(changes['config']&&!changes['config'].firstChange)&&changes['']) {
       this.idZoom=Math.round(Math.log(this.lengthTime/(this.range[1]-this.range[0]))/Math.log(1+this.speedZoom));
       this.range=this.controlRange(this.range[0],this.range[1]-this.range[0]);
       if(this.data.length!=0){
@@ -379,6 +384,10 @@ export class BasicLinechartComponent implements OnInit {
       }
     }
     if (changes['config']&&!changes['config'].firstChange&&this.data.length!=0) this.updateCurrentTime();
+
+    console.log("ngOnChanges - called");
+    console.log(changes);
+
   }
 
   /*\
@@ -1075,7 +1084,8 @@ export class BasicLinechartComponent implements OnInit {
         values: element.values.filter((element: number[]) => min <= element[0] && element[0] <=  max),
         color: element.color,
         style: element.style,
-        interpolation: element.interpolation
+        interpolation: element.interpolation,
+        // colorScheme: element.colorScheme
       }})
     let time: number[];
     this.data.forEach((element,index) => {

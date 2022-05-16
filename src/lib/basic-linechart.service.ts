@@ -108,7 +108,7 @@ export class DataService {
   "2016-07-25 16:29:50,204";"PC3";"OFF"
   "2016-07-25 16:34:50,177";"PC3";"ON"
   "2016-07-25 16:39:50,128";"PC3";"OFF"
-  "2016-07-25 16:44:50,065";"PC3";"ON"
+  "2016-07-25 16:44:50,065";"PC3";"OFF"
 
   "2016-07-25 15:47:19,423";"Enum_1";"SUNNY"
   "2016-07-25 15:48:20,279";"Enum_1";"CLOUDY"
@@ -218,6 +218,10 @@ export class DataService {
     this.dataExemples.push([]);
     this.dataExemples[12].push(this.generateData(str,"Temperature_Salon", "purple", "line", "linear", parseFloat));
     this.dataExemples[12].push(this.generateData(str,"Temperature_Cuisine", "gold", "line", "step", parseFloat));
+    this.dataExemples.push([]);
+    this.dataExemples[13].push(this.generateData(str,"PC5", "#29fad4", "bool", "step", this.parseBool));
+    this.dataExemples[13].push(this.generateData(str,"PC6","#048ba8","bool", "step",this.parseBool));
+    this.dataExemples[13].push(this.generateData(str,"PC3","#ff1111","bool", "step",this.parseBool));
 
 
     // TODO IDEA BOOL IMPLEMENTATION //

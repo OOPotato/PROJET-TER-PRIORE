@@ -10,7 +10,8 @@ import {line} from "d3";
 interface linechart {
   data: Data[];
   colorScheme: colorMap;
-  display: number,
+  dataDisplay: number,
+  colorDisplay: number,
   name: string,
 }
 
@@ -18,7 +19,7 @@ const defaultColorScheme: colorMap = {
   sunny : "#d77403",
   rainy : "#0473a6",
   cloudy : "#6d8d9d",
-  lineIndex: ["red"]
+  lineIndex: ["#ff0000", "#00ff00", "#000000"]
 }
 
 @Component({
@@ -28,8 +29,6 @@ const defaultColorScheme: colorMap = {
 })
 
 export class AppComponent {
-  title = 'Test';
-
   public config: Partial<CONFIG>;
   public range: [number, number] = [0,0];
   public currentTime : number = 0;
@@ -43,8 +42,6 @@ export class AppComponent {
 
   public BACK = -1;
   public NEXT = 1;
-
-  public blabla: Data[];
 
   constructor(data : DataService) {
     this.allDatasets = data.dataExemples;
@@ -64,7 +61,7 @@ export class AppComponent {
       sunny : "#d70303",
       rainy : "#00abff",
       cloudy : "#0d8a5a",
-      lineIndex: ["green", "#e19b0f"]
+      lineIndex: ["#5ad95a", "#e19b0f"]
     }
     this.colorScheme2 = {
       sunny : "#d74303",
@@ -77,23 +74,24 @@ export class AppComponent {
     this.linecharts.push({
       data: this.allDatasets[5],
       colorScheme: defaultColorScheme,
-      display: 5,
-      name: this.getAllNamesOfDatasets(this.allDatasets[5])
+      dataDisplay: 5,
+      colorDisplay: 0,
+      name: this.getAllNamesOfDataset(this.allDatasets[5])
     });
     this.linecharts.push({
       data: this.allDatasets[8],
       colorScheme: this.colorScheme1,
-      display: 8,
-      name: this.getAllNamesOfDatasets(this.allDatasets[8])
+      dataDisplay: 8,
+      colorDisplay: 0,
+      name: this.getAllNamesOfDataset(this.allDatasets[8])
     });
     this.linecharts.push({
       data: this.allDatasets[9],
       colorScheme: this.colorScheme2,
-      display: 9,
-      name: this.getAllNamesOfDatasets(this.allDatasets[9])
+      dataDisplay: 9,
+      colorDisplay: 0,
+      name: this.getAllNamesOfDataset(this.allDatasets[9])
     });
-
-    this.blabla = data.dataExemples[0];
 
   }
 
@@ -107,38 +105,47 @@ export class AppComponent {
 
   public changeLinechart(linechart: number, value: number){
 
-    this.linecharts[linechart].display += value;
+    this.linecharts[linechart].dataDisplay += value;
 
-    if(this.linecharts[linechart].display == this.allDatasets.length) this.linecharts[linechart].display = 0;
-    if(this.linecharts[linechart].display == -1) this.linecharts[linechart].display = this.allDatasets.length-1;
+    if(this.linecharts[linechart].dataDisplay == this.allDatasets.length) this.linecharts[linechart].dataDisplay = 0;
+    if(this.linecharts[linechart].dataDisplay == -1) this.linecharts[linechart].dataDisplay = this.allDatasets.length-1;
 
-    this.linecharts[linechart].data = this.allDatasets[this.linecharts[linechart].display];
-    this.linecharts[linechart].name = this.getAllNamesOfDatasets(this.linecharts[linechart].data);
+    this.linecharts[linechart].data = this.allDatasets[this.linecharts[linechart].dataDisplay];
+    this.linecharts[linechart].name = this.getAllNamesOfDataset(this.linecharts[linechart].data);
   }
 
-  public updateLinechart(linechart: number, data: Data[]) {
+  public updateDataIndex(linechart: number, data: Data[]) {
 
-    let display: number = 0;
+    let dataDisplay: number = 0;
     let done: boolean = false;
     let n=0;
-    let value = this.getAllNamesOfDatasets(data);
+    let value = this.getAllNamesOfDataset(data);
 
     while(!done && n<this.allDatasets.length){
-      if(value == this.getAllNamesOfDatasets(this.allDatasets[n])){
-        display = n
+      if(value == this.getAllNamesOfDataset(this.allDatasets[n])){
+        dataDisplay = n
         done = true;
       }
       n++
     }
 
-    this.linecharts[linechart].display = display;
-
-    this.linecharts[linechart].data = this.allDatasets[this.linecharts[linechart].display];
-    this.linecharts[linechart].name = this.getAllNamesOfDatasets(this.linecharts[linechart].data);
+    this.linecharts[linechart].dataDisplay = dataDisplay;
 
   }
 
-  public getAllNamesOfDatasets(datasets: Data[]): string {
+  public updateColorIndex(linechart : number, index: number){
+    this.linecharts[linechart].colorDisplay = index;
+  }
+
+  public updateColor(linechart: number, color: string){
+    this.linecharts[linechart].colorScheme.sunny = color;
+    console.log("clr-linechart-scheme : ", this.linecharts[linechart].colorScheme.sunny);
+    let colorEdit = document.getElementById("test");
+    if(colorEdit != null) colorEdit.style.backgroundColor = color;
+
+  }
+
+  public getAllNamesOfDataset(datasets: Data[]): string {
     let result = "";
     datasets.forEach((data) => {
       result = result + data.label + ", ";
@@ -147,6 +154,26 @@ export class AppComponent {
     result = result.slice(0, result.length-2)
 
     return result;
+  }
+
+  public showColorEdit(linechart: number){
+    let colorEdit = document.getElementById("colorEdit_" + linechart);
+    let label = document.getElementById("linechartLabel_" + linechart);
+
+    let button = document.getElementById("btn-switch_" + linechart);
+
+    if(colorEdit != null && label != null && button != null){
+      if(colorEdit.style.display == "none"){
+        colorEdit.style.display = "block";
+        label.style.display = "none";
+        button.textContent = "Show Dataset name";
+      } else {
+        colorEdit.style.display = "none";
+        label.style.display = "block";
+        button.textContent = "Edit color Scheme";
+      }
+    }
+
   }
 
 }

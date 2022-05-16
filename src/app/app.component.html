@@ -11,17 +11,61 @@
     <!-------------------------------------------------------------------------------------------------------------------------------------------------------------->
     <!-------------------------------------------------------------------------------------------------------------------------------------------------------------->
     <tr>
+
+
       <th>
         <button (click)="changeLinechart(0, BACK)">Graph before</button>
         <button (click)="changeLinechart(0, NEXT)">Next graph</button>
+        <button (click)="showColorEdit(0)" id="btn-switch_0">Edit color Scheme</button>
 
-        <select [ngModel] = "linecharts[0].data" (ngModelChange)="updateLinechart(0, $event)">
-          <option *ngFor="let data of allDatasets" [ngValue]="data">{{getAllNamesOfDatasets(data)}}</option>
+
+
+        <select [(ngModel)] = "linecharts[0].data" (ngModelChange)="updateDataIndex(0, $event)">
+          <option *ngFor="let data of allDatasets" [ngValue]="data">{{getAllNamesOfDataset(data)}}</option>
         </select>
 
       </th>
       <th>
-        <span> Dataset : {{linecharts[0].name}}</span>
+        <span id="linechartLabel_0"> Dataset : {{linecharts[0].name}}</span>
+        <div id="colorEdit_0" style="display: none">
+          <table>
+            <tr>
+              <th>
+                <span id="test">Sunny : </span>
+              </th>
+              <th>
+                <span>{{linecharts[0].colorScheme.sunny}}</span>
+                <input type="color" [(ngModel)]="linecharts[0].colorScheme.sunny">
+              </th>
+            </tr>
+            <tr>
+              <th>
+                <span>Rainy : </span>
+              </th>
+              <th>
+                <input type="color" [(ngModel)]="linecharts[0].colorScheme.rainy">
+              </th>
+            </tr>
+            <tr>
+              <th>
+                <span>Cloudy : </span>
+              </th>
+              <th>
+                <input type="color" [(ngModel)]="linecharts[0].colorScheme.cloudy">
+              </th>
+            </tr>
+            <tr>
+              <th>
+                <select [ngModel] = "linecharts[0].colorScheme" (ngModelChange)="updateColorIndex(0, linecharts[0].colorScheme.lineIndex.indexOf($event))">
+                  <option *ngFor="let color of linecharts[0].colorScheme.lineIndex" [ngValue]="color">Line {{linecharts[0].colorScheme.lineIndex.indexOf(color)}}</option>
+                </select>
+              </th>
+              <th>
+                <input type="color" [(ngModel)]="linecharts[0].colorScheme.lineIndex[linecharts[0].colorDisplay]">
+              </th>
+            </tr>
+          </table>
+        </div>
       </th>
       <th>
         <lib-basic-linechart
@@ -39,8 +83,8 @@
         <button (click)="changeLinechart(1, BACK)">Graph before</button>
         <button (click)="changeLinechart(1, NEXT)">Next graph</button>
 
-        <select [ngModel] = "linecharts[1].data" (ngModelChange)="updateLinechart(1, $event)">
-          <option *ngFor="let data of allDatasets" [ngValue]="data">{{getAllNamesOfDatasets(data)}}</option>
+        <select [(ngModel)] = "linecharts[1].data" (ngModelChange)="updateDataIndex(1, $event)">
+          <option *ngFor="let data of allDatasets" [ngValue]="data">{{getAllNamesOfDataset(data)}}</option>
         </select>
 
       </th>
@@ -58,13 +102,13 @@
     </tr>
       <!-------------------------------------------------------------------------------------------------------------------------------------------------------------->
       <!-------------------------------------------------------------------------------------------------------------------------------------------------------------->
-    <tr>
+    <tr class="lastrow">
       <th>
         <button (click)="changeLinechart(2, BACK)">Graph before</button>
         <button (click)="changeLinechart(2, NEXT)">Next graph</button>
 
-        <select [ngModel] = "linecharts[2].data" (ngModelChange)="updateLinechart(2, $event)">
-          <option *ngFor="let data of allDatasets" [ngValue]="data">{{getAllNamesOfDatasets(data)}}</option>
+        <select [(ngModel)] = "linecharts[2].data" (ngModelChange)="updateDataIndex(2, $event)">
+          <option *ngFor="let data of allDatasets" [ngValue]="data">{{getAllNamesOfDataset(data)}}</option>
         </select>
 
       </th>
