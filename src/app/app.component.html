@@ -7,35 +7,35 @@
 </head>
 <body>
   <!-- ######################################################################################################################################################### -->
-  <table>
+  <table id="linechart_table">
     <!-------------------------------------------------------------------------------------------------------------------------------------------------------------->
     <!-------------------------------------------------------------------------------------------------------------------------------------------------------------->
-    <tr>
+    <tr *ngFor="let linechart of linecharts; let i = index" >
 
 
       <th>
-        <button (click)="changeLinechart(0, BACK)">Graph before</button>
-        <button (click)="changeLinechart(0, NEXT)">Next graph</button>
-        <button (click)="showColorEdit(0)" id="btn-switch_0">Edit color Scheme</button>
+        <button (click)="changeLinechart(i, BACK)">Graph before</button>
+        <button (click)="changeLinechart(i, NEXT)">Next graph</button>
+        <button (click)="showColorEdit(i)" id="btn-switch_{{i}}">Edit color Scheme</button>
+        <button (click)="deleteLinechart(i)">Delete Linechart</button>
 
 
-
-        <select [(ngModel)] = "linecharts[0].data" (ngModelChange)="updateDataIndex(0, $event)">
+        <select [(ngModel)] = "linecharts[i].data" (ngModelChange)="updateDataIndex(i, $event)">
           <option *ngFor="let data of allDatasets" [ngValue]="data">{{getAllNamesOfDataset(data)}}</option>
         </select>
 
       </th>
       <th>
-        <span id="linechartLabel_0"> Dataset : {{linecharts[0].name}}</span>
-        <div id="colorEdit_0" style="display: none">
+        <span id="linechart-label_{{i}}" > Dataset : {{linecharts[i].name}}</span>
+        <div id="color-edit_{{i}}" style="display: none">
           <table>
             <tr>
               <th>
-                <span id="test">Sunny : </span>
+                <span>Sunny : </span>
               </th>
               <th>
-                <span>{{linecharts[0].colorScheme.sunny}}</span>
-                <input type="color" [(ngModel)]="linecharts[0].colorScheme.sunny">
+<!--                <span>{{colorSchemes[linecharts[i].dataDisplay].sunny}}</span>-->
+                <input type="color" [(ngModel)]="colorSchemes[linecharts[i].dataDisplay].sunny">
               </th>
             </tr>
             <tr>
@@ -43,7 +43,7 @@
                 <span>Rainy : </span>
               </th>
               <th>
-                <input type="color" [(ngModel)]="linecharts[0].colorScheme.rainy">
+                <input type="color" [(ngModel)]="colorSchemes[linecharts[i].dataDisplay].rainy">
               </th>
             </tr>
             <tr>
@@ -51,17 +51,17 @@
                 <span>Cloudy : </span>
               </th>
               <th>
-                <input type="color" [(ngModel)]="linecharts[0].colorScheme.cloudy">
+                <input type="color" [(ngModel)]="colorSchemes[linecharts[i].dataDisplay].cloudy">
               </th>
             </tr>
             <tr>
               <th>
-                <select [ngModel] = "linecharts[0].colorScheme" (ngModelChange)="updateColorIndex(0, linecharts[0].colorScheme.lineIndex.indexOf($event))">
-                  <option *ngFor="let color of linecharts[0].colorScheme.lineIndex" [ngValue]="color">Line {{linecharts[0].colorScheme.lineIndex.indexOf(color)}}</option>
+                <select [ngModel] = "colorSchemes[linecharts[i].dataDisplay]" (ngModelChange)="updateColorIndex(i, colorSchemes[linecharts[i].dataDisplay].lineIndex.indexOf($event))">
+                  <option *ngFor="let color of colorSchemes[linecharts[i].dataDisplay].lineIndex" [ngValue]="color">Line {{colorSchemes[linecharts[i].dataDisplay].lineIndex.indexOf(color)}}</option>
                 </select>
               </th>
               <th>
-                <input type="color" [(ngModel)]="linecharts[0].colorScheme.lineIndex[linecharts[0].colorDisplay]">
+                <input type="color" [(ngModel)]="colorSchemes[linecharts[i].dataDisplay].lineIndex[linecharts[i].colorDisplay]">
               </th>
             </tr>
           </table>
@@ -69,8 +69,8 @@
       </th>
       <th>
         <lib-basic-linechart
-          [config] = "{knobCurrentTime: true, range: config.range, currentTime: config.currentTime, colorMap: linecharts[0].colorScheme}"
-          [data]=linecharts[0].data
+          [config] = "{knobCurrentTime: showKnob(i), scrollBar: showScrollBar(i), range: config.range, currentTime: config.currentTime, colorMap: colorSchemes[linecharts[i].dataDisplay]}"
+          [data]=linecharts[i].data
           (rangeChange)="updateRange($event)"
           (currentTimeChange)="updateCurrentTime($event)"
         ></lib-basic-linechart>
@@ -78,58 +78,16 @@
     </tr>
       <!-------------------------------------------------------------------------------------------------------------------------------------------------------------->
       <!-------------------------------------------------------------------------------------------------------------------------------------------------------------->
-    <tr>
-      <th>
-        <button (click)="changeLinechart(1, BACK)">Graph before</button>
-        <button (click)="changeLinechart(1, NEXT)">Next graph</button>
-
-        <select [(ngModel)] = "linecharts[1].data" (ngModelChange)="updateDataIndex(1, $event)">
-          <option *ngFor="let data of allDatasets" [ngValue]="data">{{getAllNamesOfDataset(data)}}</option>
-        </select>
-
-      </th>
-      <th>
-        <span> Dataset : {{linecharts[1].name}}</span>
-      </th>
-      <th>
-        <lib-basic-linechart
-          [config] = "{knobCurrentTime: false, range: config.range, currentTime: config.currentTime, colorMap: linecharts[1].colorScheme}"
-          [data]=linecharts[1].data
-          (rangeChange)="updateRange($event)"
-          (currentTimeChange)="updateCurrentTime($event)"
-        ></lib-basic-linechart>
-      </th>
-    </tr>
-      <!-------------------------------------------------------------------------------------------------------------------------------------------------------------->
-      <!-------------------------------------------------------------------------------------------------------------------------------------------------------------->
-    <tr class="lastrow">
-      <th>
-        <button (click)="changeLinechart(2, BACK)">Graph before</button>
-        <button (click)="changeLinechart(2, NEXT)">Next graph</button>
-
-        <select [(ngModel)] = "linecharts[2].data" (ngModelChange)="updateDataIndex(2, $event)">
-          <option *ngFor="let data of allDatasets" [ngValue]="data">{{getAllNamesOfDataset(data)}}</option>
-        </select>
-
-      </th>
-      <th>
-        <span> Dataset : {{linecharts[2].name}}</span>
-      </th>
 
 
-      <th>
-        <lib-basic-linechart
-          [config] = "{knobCurrentTime: false, scrollBar: true, range: config.range, currentTime: config.currentTime, colorMap: linecharts[2].colorScheme}"
-          [data]=linecharts[2].data
-          (rangeChange)="updateRange($event)"
-          (currentTimeChange)="updateCurrentTime($event)"
-        ></lib-basic-linechart>
-      </th>
-    </tr>
-      <!-------------------------------------------------------------------------------------------------------------------------------------------------------------->
+
+    <!-------------------------------------------------------------------------------------------------------------------------------------------------------------->
       <!------------------------------------------------------------------------------------------------------------------------------------------------------------->
   </table>
   <!-- ######################################################################################################################################################### -->
 
+  <div>
+    <button (click)="addLinechart()">Add a Linechart</button>
+  </div>
 </body>
 </html>

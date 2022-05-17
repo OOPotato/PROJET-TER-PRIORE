@@ -2,17 +2,17 @@ import { Component } from '@angular/core';
 import {colorMap, Data} from "../lib/basic-linechart.component";
 import {DataService} from "../lib/basic-linechart.service";
 import { CONFIG } from "../lib/basic-linechart.component";
-import {installAllPackages} from "@angular/cli/utilities/install-package";
-import {line} from "d3";
+import {isEmpty, NEVER} from "rxjs";
+import {lab, line} from "d3";
 
 
 
 interface linechart {
   data: Data[];
-  colorScheme: colorMap;
   dataDisplay: number,
   colorDisplay: number,
   name: string,
+  config: Partial<CONFIG>
 }
 
 const defaultColorScheme: colorMap = {
@@ -33,8 +33,7 @@ export class AppComponent {
   public range: [number, number] = [0,0];
   public currentTime : number = 0;
 
-  public colorScheme1: colorMap;
-  public colorScheme2: colorMap;
+  public colorSchemes: colorMap[];
 
   public allDatasets: Data[][];
 
@@ -57,41 +56,32 @@ export class AppComponent {
       knobCurrentTime: false,
     }
 
-    this.colorScheme1 = {
-      sunny : "#d70303",
-      rainy : "#00abff",
-      cloudy : "#0d8a5a",
-      lineIndex: ["#5ad95a", "#e19b0f"]
-    }
-    this.colorScheme2 = {
-      sunny : "#d74303",
-      rainy : "#0a4059",
-      cloudy : "#7c7a98",
-      lineIndex: ["#2883ea", "#09a811"]
-    }
+
+    this.colorSchemes = [];
+    data.initColorSchemes(this.colorSchemes, [data.colorScheme1, data.colorScheme2]);
 
     this.linecharts = [];
     this.linecharts.push({
       data: this.allDatasets[5],
-      colorScheme: defaultColorScheme,
       dataDisplay: 5,
       colorDisplay: 0,
-      name: this.getAllNamesOfDataset(this.allDatasets[5])
+      name: this.getAllNamesOfDataset(this.allDatasets[5]),
+      config: this.config
     });
     this.linecharts.push({
       data: this.allDatasets[8],
-      colorScheme: this.colorScheme1,
       dataDisplay: 8,
       colorDisplay: 0,
-      name: this.getAllNamesOfDataset(this.allDatasets[8])
+      name: this.getAllNamesOfDataset(this.allDatasets[8]),
+      config: this.config
     });
     this.linecharts.push({
       data: this.allDatasets[9],
-      colorScheme: this.colorScheme2,
       dataDisplay: 9,
       colorDisplay: 0,
-      name: this.getAllNamesOfDataset(this.allDatasets[9])
-    });
+      name: this.getAllNamesOfDataset(this.allDatasets[9]),
+      config: this.config
+    })
 
   }
 
@@ -138,10 +128,11 @@ export class AppComponent {
   }
 
   public updateColor(linechart: number, color: string){
-    this.linecharts[linechart].colorScheme.sunny = color;
-    console.log("clr-linechart-scheme : ", this.linecharts[linechart].colorScheme.sunny);
-    let colorEdit = document.getElementById("test");
-    if(colorEdit != null) colorEdit.style.backgroundColor = color;
+    // this.linecharts[linechart].colorScheme.sunny = color;
+    // console.log("clr-linechart-scheme : ", this.linecharts[linechart].colorScheme.sunny);
+    // let colorEdit = document.getElementById("test");
+    // if(colorEdit != null) colorEdit.style.backgroundColor = color;
+    // console.log("Called");
 
   }
 
@@ -157,8 +148,8 @@ export class AppComponent {
   }
 
   public showColorEdit(linechart: number){
-    let colorEdit = document.getElementById("colorEdit_" + linechart);
-    let label = document.getElementById("linechartLabel_" + linechart);
+    let colorEdit = document.getElementById("color-edit_" + linechart);
+    let label = document.getElementById("linechart-label_" + linechart);
 
     let button = document.getElementById("btn-switch_" + linechart);
 
@@ -172,8 +163,33 @@ export class AppComponent {
         label.style.display = "block";
         button.textContent = "Edit color Scheme";
       }
+    } else {
+      console.log(colorEdit, label, button);
     }
 
+  }
+
+  public addLinechart(){
+    this.linecharts.push({
+      data: this.allDatasets[0],
+      dataDisplay: 0,
+      colorDisplay: 0,
+      name: this.getAllNamesOfDataset(this.allDatasets[0]),
+      config: this.config
+    })
+
+  }
+
+  public deleteLinechart(linechart: number){
+    this.linecharts.splice(linechart, 1)
+  }
+
+  public showKnob(linechart: number): boolean{
+    return linechart==0;
+  }
+
+  public showScrollBar(linechart: number): boolean{
+    return linechart==this.linecharts.length-1;
   }
 
 }

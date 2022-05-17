@@ -46,11 +46,6 @@ export interface Data {
    * Recommanded : step for discrete values and linear for continuous values
   \*/
   interpolation: "linear" | "step";
-
-  // /*\
-  //  * Line and Enums colors
-  // \*/
-  // colorScheme: colorMap;
 }
 
 export interface CONFIG {
@@ -125,6 +120,8 @@ export class BasicLinechartComponent implements OnInit {
     this._config = {...defaultConfig, ...c};
 
   }
+
+  private oldColorMap: colorMap = defaultColorMap;
 
   get width(): number {return <number>this.config.width;}
   set width(value: number) { this.config.width = value; }
@@ -373,6 +370,9 @@ export class BasicLinechartComponent implements OnInit {
    * @param {SimpleChanges} changes
   \*/
   public ngOnChanges(changes: SimpleChanges): void {
+
+    // console.log("changes : ", changes);
+
     if (changes['data']&&!changes['data'].firstChange) this.updateChart();
     if ((changes['data']&&!changes['data'].firstChange&&this.range[0]!=0&&this.range[1]!=0)||(changes['config']&&!changes['config'].firstChange)&&changes['']) {
       this.idZoom=Math.round(Math.log(this.lengthTime/(this.range[1]-this.range[0]))/Math.log(1+this.speedZoom));
@@ -385,10 +385,17 @@ export class BasicLinechartComponent implements OnInit {
     }
     if (changes['config']&&!changes['config'].firstChange&&this.data.length!=0) this.updateCurrentTime();
 
-    console.log("ngOnChanges - called");
-    console.log(changes);
-
   }
+
+  // public ngDoCheck(changes: SimpleChanges){
+  //   if(this.config.colorMap != null) {
+  //     if (this.config.colorMap != this.oldColorMap) {
+  //       this.oldColorMap = this.config.colorMap;
+  //       this.updateChart();
+  //       console.log("Called");
+  //     }
+  //   }
+  // }
 
   /*\
    * Add event listeners on the svg
@@ -838,12 +845,12 @@ export class BasicLinechartComponent implements OnInit {
           .x((d: number[]) => x=this.scaleX(d[0]))
           // .y((d: number[]) => this.scaleY(d[1])))
           .y((d: number[]) => {
-            // console.log("START --------------------------------");
-            // console.log("this.controlDomain()[0] - " +this.controlDomain()[0]);
-            // console.log("this.height] - " +this.height);
-            // console.log("d[0] = " + d[0] + " | d[1] = " + d[1]);
-            // console.log("this.scaleX - d[0] = " + this.scaleX(d[0]) + " | this.scaleY - d[1] = " + this.scaleY(d[1]));
-            // console.log("--------------------------------------\n");
+            console.log("START --------------------------------");
+            console.log("this.controlDomain()[0] - " +this.controlDomain()[0]);
+            console.log("this.height] - " +this.height);
+            console.log("d[0] = " + d[0] + " | d[1] = " + d[1]);
+            console.log("this.scaleX - d[0] = " + this.scaleX(d[0]) + " | this.scaleY - d[1] = " + this.scaleY(d[1]));
+            console.log("--------------------------------------\n");
             return d[1];
           }))
         // .x((d: number[]) => 10)
@@ -1084,8 +1091,7 @@ export class BasicLinechartComponent implements OnInit {
         values: element.values.filter((element: number[]) => min <= element[0] && element[0] <=  max),
         color: element.color,
         style: element.style,
-        interpolation: element.interpolation,
-        // colorScheme: element.colorScheme
+        interpolation: element.interpolation
       }})
     let time: number[];
     this.data.forEach((element,index) => {

@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {Data} from './basic-linechart.component';
+import {colorMap, Data} from './basic-linechart.component';
 
 
 /**
@@ -21,6 +21,13 @@ interface DATA<T>{
    * Label of sensor in data
    */
   sensorId: string;
+}
+
+const defaultColorScheme: colorMap = {
+  sunny : "#d77403",
+  rainy : "#0473a6",
+  cloudy : "#6d8d9d",
+  lineIndex: ["#ff0000", "#00ff00", "#000000"]
 }
 
 @Injectable({
@@ -137,6 +144,9 @@ export class DataService {
 
   public dataExemples: Data[][] = [];
 
+  public colorScheme1: colorMap;
+  public colorScheme2: colorMap;
+
   public nbOfData: number;
 
   /**
@@ -149,6 +159,21 @@ export class DataService {
       this.dataExemples[i] = [];
     }
     this.generateExample(this.str);
+
+
+    this.colorScheme1 = {
+      sunny : "#d70303",
+      rainy : "#00abff",
+      cloudy : "#0d8a5a",
+      lineIndex: ["#5ad95a", "#e19b0f"]
+    }
+    this.colorScheme2 = {
+      sunny : "#d74303",
+      rainy : "#0a4059",
+      cloudy : "#7c7a98",
+      lineIndex: ["#2883ea", "#09a811"]
+    }
+
   }
 
   /**
@@ -221,7 +246,7 @@ export class DataService {
     this.dataExemples.push([]);
     this.dataExemples[13].push(this.generateData(str,"PC5", "#29fad4", "bool", "step", this.parseBool));
     this.dataExemples[13].push(this.generateData(str,"PC6","#048ba8","bool", "step",this.parseBool));
-    this.dataExemples[13].push(this.generateData(str,"PC3","#ff1111","bool", "step",this.parseBool));
+    this.dataExemples[13].push(this.generateData(str,"PC3","#1160ff","bool", "step",this.parseBool));
 
 
     // TODO IDEA BOOL IMPLEMENTATION //
@@ -313,6 +338,35 @@ export class DataService {
     });
 
     return new Set(test2).size;
+  }
+
+
+  public initColorSchemes(csToModify: colorMap[], readyColorScheme: colorMap[]){
+    let n=0;
+
+    while(n<this.dataExemples.length) {
+      csToModify[n] = readyColorScheme[n] != null ? readyColorScheme[n] : this.randomColorScheme();
+      n++;
+    }
+  }
+
+  public randomColorScheme(): colorMap {
+    return {
+      sunny: this.randomColor(100),
+      rainy: this.randomColor(100),
+      cloudy: this.randomColor(100),
+      lineIndex: [this.randomColor(100), this.randomColor(100)]
+    }
+  }
+
+  public randomColor(brightness :number){
+    function randomChannel(brightness:number){
+      var r = 255-brightness;
+      var n = 0|((Math.random() * r) + brightness);
+      var s = n.toString(16);
+      return (s.length==1) ? '0'+s : s;
+    }
+    return '#' + randomChannel(brightness) + randomChannel(brightness) + randomChannel(brightness);
   }
 
 }
