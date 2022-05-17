@@ -277,6 +277,11 @@ export class BasicLinechartComponent implements OnInit {
   /*\
    * Svg definition of enum Labels
   \*/
+  private enumUTF8!: Selection<SVGGElement,unknown,null,undefined>;
+
+  /*\
+   * Svg definition of enum Labels
+  \*/
   private enumLabel!: Selection<SVGGElement,unknown,null,undefined>;
 
   /*\
@@ -516,7 +521,7 @@ export class BasicLinechartComponent implements OnInit {
               {"x" : this.scaleX(element.values[i+1][0]), "y" : this.svgHeight},
               {"x" : this.scaleX(element.values[i][0]), "y" : this.svgHeight},
             ],
-            "color": this.selectColor(this.intToEnum(element.values[i][1])),
+            "color": this.selectColor(this.intToEnumTxt(element.values[i][1])),
           }
 
           allPolygonsPath[polyId] = polygonPath;
@@ -774,13 +779,42 @@ export class BasicLinechartComponent implements OnInit {
   \*/
   private buildLabels():void {
 
-    this.enumLabel = this.svg.selectAll(".label").data(this.dataZoomed);
+    // this.enumLabel = this.svg.selectAll(".label").data(this.dataZoomed);
+    //
+    // var gs = this.enumLabel
+    //   .enter()
+    //   .append("g")
+    //   .attr("class", "label");
+    //
+    //
+    // this.dataZoomed.forEach((element) => {
+    //
+    //   if (element.style == "enum") {
+    //     let i: number = 0;
+    //     let avgLetterLength: number = 10.75; // For 15px of font-size
+    //
+    //     for (i; i < element.values.length - 1; i++) {
+    //
+    //       if (this.scaleX(element.values[i + 1][0]) - this.scaleX(element.values[i][0]) >= avgLetterLength * this.intToEnum(element.values[i][1]).length) {
+    //
+    //         gs.append("text")
+    //           .attr("class", "label")
+    //           // .text(this.intToEnumTxt(element.values[i][1]))
+    //           .text('&#x26C5;')
+    //           .style("font-size", "15px")
+    //           .attr("transform", "translate(" + (this.scaleX(element.values[i][0])+4) + "," + ((this.svgHeight / 2) + avgLetterLength/2) + ")");
+    //
+    //       }
+    //     }
+    //   }
+    // });
 
-    var gs = this.enumLabel
+    this.enumUTF8 = this.svg.selectAll(".utf8_label").data(this.dataZoomed);
+
+    var utf8 = this.enumUTF8
       .enter()
       .append("g")
-      .attr("class", "label");
-
+      .attr("class", "utf8_label");
 
     this.dataZoomed.forEach((element) => {
 
@@ -790,13 +824,14 @@ export class BasicLinechartComponent implements OnInit {
 
         for (i; i < element.values.length - 1; i++) {
 
-          if (this.scaleX(element.values[i + 1][0]) - this.scaleX(element.values[i][0]) >= avgLetterLength * this.intToEnum(element.values[i][1]).length) {
+          if (this.scaleX(element.values[i + 1][0]) - this.scaleX(element.values[i][0]) >= avgLetterLength * this.intToEnumTxt(element.values[i][1]).length) {
 
-            gs.append("text")
-              .attr("class", "label")
-              .text(this.intToEnum(element.values[i][1]))
-              .style("font-size", "15px")
-              .attr("transform", "translate(" + (this.scaleX(element.values[i][0])+4) + "," + ((this.svgHeight / 2) + avgLetterLength/2) + ")");
+            utf8.append("text")
+              .attr("class", "utf8_label")
+              // .text(this.intToEnumTxt(element.values[i][1]))
+              .html(this.intToEnumUTF8(element.values[i][1]))
+              .style("font-size", "30px")
+              .attr("transform", "translate(" + (this.scaleX(element.values[i][0])+4) + "," + ((this.svgHeight / 2) + 10) + ")");
 
           }
         }
@@ -816,13 +851,26 @@ export class BasicLinechartComponent implements OnInit {
 
 
   /*\
-   * Translate numerical value to enumeration
+   * Translate numerical value to enumeration text
   \*/
 
-  private  intToEnum(value: number): string{
+  private  intToEnumTxt(value: number): string{
     if(value==1) return "SUNNY";
     else if (value==2) return "RAINY";
     else if (value==3) return "CLOUDY";
+    else return "UNKNOWN";
+
+  }
+
+
+  /*\
+   * Translate numerical value to enumeration UTF8 image
+  \*/
+
+  private  intToEnumUTF8(value: number): string{
+    if(value==1) return "☀️"; // SUNNY
+    else if (value==2) return "🌧️"; // RAINY
+    else if (value==3) return "☁️"; //CLOUDY
     else return "UNKNOWN";
 
   }
@@ -1157,7 +1205,7 @@ export class BasicLinechartComponent implements OnInit {
       d3.selectAll('#tooltip-date1')
         .text(date);
       if(this.dataZoomed[0].style != "enum") d3.selectAll('#tooltip-date2').text(this.roundDecimal(d, 2))
-      else d3.selectAll('#tooltip-date2').text(this.intToEnum(this.roundDecimal(d, 2)))
+      else d3.selectAll('#tooltip-date2').text(this.intToEnumTxt(this.roundDecimal(d, 2)))
       this.tooltip.style("display","block");
       this.tooltip.style("opacity", 100);
       this.tooltip.attr("transform", "translate(" + this.scaleX(t) + "," + this.scaleY(d) + ")");
