@@ -359,6 +359,9 @@ export class BasicLinechartComponent implements OnInit {
       let h = this.timeline.nativeElement.height.animVal.value;
       this.svgWidth = (w - this.margin.left) - this.margin.right;
       this.svgHeight = (h - this.margin.top) - this.margin.bottom;
+
+      console.log("svgWidth", this.svgWidth);
+      console.log("svgHeight", this.svgHeight);
     }
     this.data.forEach((element,index) => this.buildStyleData(element,index));
     this.controlSpeedZoom();
@@ -390,8 +393,18 @@ export class BasicLinechartComponent implements OnInit {
         this.updateLabels();
       }
     }
-    if (changes['config']&&!changes['config'].firstChange&&this.data.length!=0) this.updateCurrentTime();
 
+    if (this.timeline != undefined) {
+      let w = this.timeline.nativeElement.width.animVal.value;
+      let h = this.timeline.nativeElement.height.animVal.value;
+      this.svgWidth = (w - this.margin.left) - this.margin.right;
+      this.svgHeight = (h - this.margin.top) - this.margin.bottom;
+
+      console.log("svgWidth", this.svgWidth);
+      console.log("svgHeight", this.svgHeight);
+    }
+
+    if (changes['config']&&!changes['config'].firstChange&&this.data.length!=0) this.updateCurrentTime();
   }
 
   // public ngDoCheck(changes: SimpleChanges){

@@ -74,7 +74,7 @@
 
       <th>
         <lib-basic-linechart
-          [config] = "{knobCurrentTime: showKnob(i), scrollBar: showScrollBar(i), range: config.range, currentTime: config.currentTime, colorMap: colorSchemes[linecharts[i].dataDisplay], peakSize: linecharts[i].peakSize}"
+          [config] = "{width:config.width, height:config.height,knobCurrentTime: showKnob(i), scrollBar: showScrollBar(i), range: config.range, currentTime: config.currentTime, colorMap: colorSchemes[linecharts[i].dataDisplay], peakSize: linecharts[i].peakSize}"
           [data]=linecharts[i].data
           (rangeChange)="updateRange($event)"
           (currentTimeChange)="updateCurrentTime($event)"
@@ -86,7 +86,9 @@
   <!-- ######################################################################################################################################################### -->
 
   <div>
-    <button (click)="addLinechart()">Add a Linechart</button>
+    <button (click)="addLinechart()">Add a Linechart</button><br><br>
+    <span>Width </span><input [ngModel]="this.config.width" type="range" min="1" (ngModelChange)="widthUpdate($event)">
+    <span>Height </span><input [(ngModel)]="this.config.height" type="range" (ngModelChange)="heightUpdate($event)">
   </div>
 </body>
 </html>

@@ -243,6 +243,14 @@ export class AppComponent {
 
   }
 
+  public widthUpdate(value: number){
+    this.config.width = value*10;
+  }
+
+  public heightUpdate(value: number){
+    this.config.height = value*1.5;
+  }
+
 }
 
 

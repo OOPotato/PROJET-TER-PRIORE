@@ -341,7 +341,6 @@ export class DataService {
     return new Set(test2).size;
   }
 
-
   public initColorSchemes(csToModify: colorMap[], readyColorScheme: colorMap[]){
     let n=0;
 
@@ -361,7 +360,7 @@ export class DataService {
     }
   }
 
-  public randomColor(brightness :number/*, mainColorIntensity: string*/){
+  public randomColor(brightness :number){
     function randomChannel(brightness:number){
       var r = 255-brightness;
       var n = 0|((Math.random() * r) + brightness);
