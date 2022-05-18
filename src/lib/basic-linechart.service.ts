@@ -1,5 +1,6 @@
 import {Injectable} from '@angular/core';
 import {colorMap, Data} from './basic-linechart.component';
+import {rgb} from "d3";
 
 
 /**
@@ -351,26 +352,52 @@ export class DataService {
   }
 
   public randomColorScheme(): colorMap {
+    this.randomHueOfColor("blue", 100);
     return {
-      sunny: this.randomColor(100),
-      rainy: this.randomColor(100),
-      cloudy: this.randomColor(100),
+      sunny: this.randomHueOfColor("orange", 100),
+      rainy: this.randomHueOfColor("blue", 100),
+      cloudy: this.randomHueOfColor("grey", 100),
       lineIndex: [this.randomColor(100), this.randomColor(100)]
     }
   }
 
-  public randomColor(brightness :number){
-    function randomChannel(brightness:number, colorIntensity: string){
-      if(colorIntensity=="blue"){
-
-      }
-
-        var r = 255 - brightness;
-        var n = 0 | ((Math.random() * r) + brightness);
-        var s = n.toString(16);
-        return (s.length == 1) ? '0' + s : s;
+  public randomColor(brightness :number/*, mainColorIntensity: string*/){
+    function randomChannel(brightness:number){
+      var r = 255-brightness;
+      var n = 0|((Math.random() * r) + brightness);
+      var s = n.toString(16);
+      return (s.length==1) ? '0'+s : s;
     }
-    return '#' + randomChannel(brightness, "") + randomChannel(brightness, "") + randomChannel(brightness, "");
+    return '#' + randomChannel(brightness) + randomChannel(brightness) + randomChannel(brightness);
+  }
+
+  public randomHueOfColor(hue: string, brightness: number): string{
+    function valueToHex(v:number): string{
+      let hex = v.toString(16);
+      return hex.length == 1 ? '0'+hex : hex;
+    }
+
+    if(hue == "blue"){
+      let r:number = 0;
+      let g:number = Math.floor(Math.random() * 255);
+      let b:number = 255;
+      return '#' + valueToHex(r) + valueToHex(g) +valueToHex(b);
+
+    } else if (hue == "orange") {
+      let r:number = 255;
+      let g:number = Math.floor(Math.random() * 255);
+      let b:number = 0;
+      return '#' + valueToHex(r) + valueToHex(g) +valueToHex(b);
+
+    } else if ((hue == "grey") || (hue == "gray")) {
+      let b:number = Math.floor((Math.random() * (255 -120 +1)+120));
+      let r:number = Math.floor(0.7*b);
+      let g:number = Math.floor(0.8*b);
+      return '#' + valueToHex(r) + valueToHex(g) +valueToHex(b);
+
+    }
+
+    return this.randomColor(brightness);
   }
 
 }

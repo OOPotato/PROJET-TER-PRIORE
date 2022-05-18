@@ -17,6 +17,7 @@
         <button (click)="changeLinechart(i, BACK)">Graph before</button>
         <button (click)="changeLinechart(i, NEXT)">Next graph</button>
         <button (click)="showColorEdit(i)" id="btn-switch_{{i}}">Edit color Scheme</button>
+        <button (click)="showPeakEdit(i)" id="btn-show-peak_{{i}}">Edit boolean peak</button>
         <button (click)="deleteLinechart(i)">Delete Linechart</button>
 
 
@@ -66,10 +67,13 @@
             </tr>
           </table>
         </div>
+        <div id="peak-edit_{{i}}" style="display: none">
+          <input type="range" min="0" max="50" [(ngModel)] = "linecharts[i].peakSize">
+        </div>
       </th>
       <th>
         <lib-basic-linechart
-          [config] = "{knobCurrentTime: showKnob(i), scrollBar: showScrollBar(i), range: config.range, currentTime: config.currentTime, colorMap: colorSchemes[linecharts[i].dataDisplay]}"
+          [config] = "{knobCurrentTime: showKnob(i), scrollBar: showScrollBar(i), range: config.range, currentTime: config.currentTime, colorMap: colorSchemes[linecharts[i].dataDisplay], peakSize: linecharts[i].peakSize}"
           [data]=linecharts[i].data
           (rangeChange)="updateRange($event)"
           (currentTimeChange)="updateCurrentTime($event)"

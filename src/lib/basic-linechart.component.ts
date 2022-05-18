@@ -57,6 +57,7 @@ export interface CONFIG {
   currentTime: number;
   scrollBar: boolean;
   knobCurrentTime: boolean;
+  peakSize: number
   colorMap : colorMap;
 }
 
@@ -83,6 +84,7 @@ const defaultConfig: CONFIG = {
   currentTime: 1,
   scrollBar: false,
   knobCurrentTime: false,
+  peakSize: 5,
   colorMap: defaultColorMap,
 
 }
@@ -477,7 +479,7 @@ export class BasicLinechartComponent implements OnInit {
     let allPolygonsPath: polygonDef[]= [];
     let polygonPath: polygonDef;
     let polyId: number = 0;
-    let slopeMargin = 5;
+    let slopeMargin = this.config.peakSize != null ? this.config.peakSize : 5;
 
     let i:   number = 0;
     while(i < element.values.length-1) {
@@ -506,7 +508,7 @@ export class BasicLinechartComponent implements OnInit {
 
           allPolygonsPath[polyId] = polygonPath;
           polyId++;
-          slopeMargin = 5;
+          slopeMargin = this.config.peakSize != null ? this.config.peakSize : 5;
 
         }
 
@@ -846,6 +848,7 @@ export class BasicLinechartComponent implements OnInit {
 
   private updateLabels(): void {
       this.svg.selectAll(".label").remove();
+      this.svg.selectAll(".utf8_label").remove();
     this.buildLabels();
   }
 
@@ -893,12 +896,12 @@ export class BasicLinechartComponent implements OnInit {
           .x((d: number[]) => x=this.scaleX(d[0]))
           // .y((d: number[]) => this.scaleY(d[1])))
           .y((d: number[]) => {
-            console.log("START --------------------------------");
-            console.log("this.controlDomain()[0] - " +this.controlDomain()[0]);
-            console.log("this.height] - " +this.height);
-            console.log("d[0] = " + d[0] + " | d[1] = " + d[1]);
-            console.log("this.scaleX - d[0] = " + this.scaleX(d[0]) + " | this.scaleY - d[1] = " + this.scaleY(d[1]));
-            console.log("--------------------------------------\n");
+            // console.log("START --------------------------------");
+            // console.log("this.controlDomain()[0] - " +this.controlDomain()[0]);
+            // console.log("this.height] - " +this.height);
+            // console.log("d[0] = " + d[0] + " | d[1] = " + d[1]);
+            // console.log("this.scaleX - d[0] = " + this.scaleX(d[0]) + " | this.scaleY - d[1] = " + this.scaleY(d[1]));
+            // console.log("--------------------------------------\n");
             return d[1];
           }))
         // .x((d: number[]) => 10)

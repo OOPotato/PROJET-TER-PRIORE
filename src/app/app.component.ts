@@ -12,7 +12,8 @@ interface linechart {
   dataDisplay: number,
   colorDisplay: number,
   name: string,
-  config: Partial<CONFIG>
+  config: Partial<CONFIG>,
+  peakSize: number
 }
 
 const defaultColorScheme: colorMap = {
@@ -66,21 +67,24 @@ export class AppComponent {
       dataDisplay: 5,
       colorDisplay: 0,
       name: this.getAllNamesOfDataset(this.allDatasets[5]),
-      config: this.config
+      config: this.config,
+      peakSize: this.config.peakSize!=null?this.config.peakSize:5
     });
     this.linecharts.push({
       data: this.allDatasets[8],
       dataDisplay: 8,
       colorDisplay: 0,
       name: this.getAllNamesOfDataset(this.allDatasets[8]),
-      config: this.config
+      config: this.config,
+      peakSize: this.config.peakSize!=null?this.config.peakSize:5
     });
     this.linecharts.push({
       data: this.allDatasets[9],
       dataDisplay: 9,
       colorDisplay: 0,
       name: this.getAllNamesOfDataset(this.allDatasets[9]),
-      config: this.config
+      config: this.config,
+      peakSize: this.config.peakSize!=null?this.config.peakSize:5
     })
 
   }
@@ -149,22 +153,56 @@ export class AppComponent {
 
   public showColorEdit(linechart: number){
     let colorEdit = document.getElementById("color-edit_" + linechart);
+    let peakEdit = document.getElementById("peak-edit_" + linechart);
     let label = document.getElementById("linechart-label_" + linechart);
 
-    let button = document.getElementById("btn-switch_" + linechart);
+    let button_color = document.getElementById("btn-switch_" + linechart);
+    let button_peak = document.getElementById("btn-show-peak_" + linechart);
 
-    if(colorEdit != null && label != null && button != null){
+    if(peakEdit != null && colorEdit != null  && label != null && button_peak != null && button_color != null){
       if(colorEdit.style.display == "none"){
+        if(peakEdit.style.display != "none"){
+          peakEdit.style.display = "none";
+          button_peak.textContent = "Edit boolean peak";
+        }
         colorEdit.style.display = "block";
         label.style.display = "none";
-        button.textContent = "Show Dataset name";
+        button_color.textContent = "Show Dataset name";
       } else {
         colorEdit.style.display = "none";
         label.style.display = "block";
-        button.textContent = "Edit color Scheme";
+        button_color.textContent = "Edit color Scheme";
       }
     } else {
-      console.log(colorEdit, label, button);
+      console.log(colorEdit, label, button_peak);
+    }
+
+  }
+
+  public showPeakEdit(linechart: number){
+    let colorEdit = document.getElementById("color-edit_" + linechart);
+    let peakEdit = document.getElementById("peak-edit_" + linechart);
+    let label = document.getElementById("linechart-label_" + linechart);
+
+    let button_color = document.getElementById("btn-switch_" + linechart);
+    let button_peak = document.getElementById("btn-show-peak_" + linechart);
+
+    if(peakEdit != null && colorEdit != null  && label != null && button_peak != null && button_color != null){
+      if(peakEdit.style.display == "none"){
+        if(colorEdit.style.display != "none"){
+          colorEdit.style.display = "none";
+          button_color.textContent = "Edit color Scheme";
+        }
+        peakEdit.style.display = "block";
+        label.style.display = "block";
+        button_peak.textContent = "Hide peak edit";
+      } else {
+        peakEdit.style.display = "none";
+        label.style.display = "block";
+        button_peak.textContent = "Edit boolean peak";
+      }
+    } else {
+      console.log(peakEdit, label, button_peak);
     }
 
   }
@@ -175,7 +213,8 @@ export class AppComponent {
       dataDisplay: 0,
       colorDisplay: 0,
       name: this.getAllNamesOfDataset(this.allDatasets[0]),
-      config: this.config
+      config: this.config,
+      peakSize: this.config.peakSize!=null?this.config.peakSize:5
     })
 
   }
@@ -189,7 +228,19 @@ export class AppComponent {
   }
 
   public showScrollBar(linechart: number): boolean{
+    // console.log(linechart==this.linecharts.length-1)
     return linechart==this.linecharts.length-1;
+  }
+
+  public checkPeakEdit(linechart: number, value: number){
+    console.log("Start ------- ", value);
+    let i =0;
+    this.linecharts.forEach((element) => {
+      console.log("linechart : ", i);
+      console.log(element.peakSize);
+      i++;
+    });
+
   }
 
 }
