@@ -12,7 +12,6 @@
     <!-------------------------------------------------------------------------------------------------------------------------------------------------------------->
     <tr *ngFor="let linechart of linecharts; let i = index" >
 
-
       <th>
         <button (click)="changeLinechart(i, BACK)">Graph before</button>
         <button (click)="changeLinechart(i, NEXT)">Next graph</button>
@@ -26,6 +25,7 @@
         </select>
 
       </th>
+
       <th>
         <span id="linechart-label_{{i}}" > Dataset : {{linecharts[i].name}}</span>
         <div id="color-edit_{{i}}" style="display: none">
@@ -71,6 +71,7 @@
           <input type="range" min="0" max="50" [(ngModel)] = "linecharts[i].peakSize">
         </div>
       </th>
+
       <th>
         <lib-basic-linechart
           [config] = "{knobCurrentTime: showKnob(i), scrollBar: showScrollBar(i), range: config.range, currentTime: config.currentTime, colorMap: colorSchemes[linecharts[i].dataDisplay], peakSize: linecharts[i].peakSize}"
@@ -79,6 +80,7 @@
           (currentTimeChange)="updateCurrentTime($event)"
         ></lib-basic-linechart>
       </th>
+
     </tr>
   </table>
   <!-- ######################################################################################################################################################### -->

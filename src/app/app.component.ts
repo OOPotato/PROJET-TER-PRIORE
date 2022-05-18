@@ -228,7 +228,7 @@ export class AppComponent {
   }
 
   public showScrollBar(linechart: number): boolean{
-    // console.log(linechart==this.linecharts.length-1)
+    // console.log(linechart==this.linecharts.length-1);
     return linechart==this.linecharts.length-1;
   }
 

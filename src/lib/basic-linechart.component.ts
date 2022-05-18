@@ -717,9 +717,7 @@ export class BasicLinechartComponent implements OnInit {
           return this.config.colorMap?.cloudy
       }
     }
-
     return "black";
-
   }
 
 
@@ -948,6 +946,12 @@ export class BasicLinechartComponent implements OnInit {
     }
   }
 
+
+  private hideScrollbar(): void {
+    this.zoneScrollbar.nativeElement.remove();
+    this.scrollbar.nativeElement.remove();
+  }
+
   /*\
    * Update all the line chart (horizontal and vertical axis and scale, data, lines and range) on data changes.
   \*/
@@ -1102,8 +1106,12 @@ export class BasicLinechartComponent implements OnInit {
    * @param {number} max of the new range
   \*/
   private updateScrollbar(min:number, max:number): void{
-    this.scrollbar.nativeElement.style.marginLeft= this.svgWidth*(min-this.minTime)/(this.lengthTime) + "px";
-    this.scrollbar.nativeElement.style.width= this.svgWidth*(max-min)/(this.lengthTime) + "px";
+    if(this.scrollBar){
+      this.scrollbar.nativeElement.style.marginLeft= this.svgWidth*(min-this.minTime)/(this.lengthTime) + "px";
+      this.scrollbar.nativeElement.style.width= this.svgWidth*(max-min)/(this.lengthTime) + "px";
+    } else {
+      this.hideScrollbar();
+    }
   }
 
   /*\
