@@ -1,26 +1,16 @@
 import { Component } from '@angular/core';
-import {colorMap, Data} from "../lib/basic-linechart.component";
+import {colorMap, Data, DataG, CONFIG, DataBool, DataEnum, DataNumber} from 'src/lib/interfaces'
 import {DataService} from "../lib/basic-linechart.service";
-import { CONFIG } from "../lib/basic-linechart.component";
 import {isEmpty, NEVER} from "rxjs";
 import {lab, line} from "d3";
 
 
-
 interface linechart {
-  data: Data[];
+  dataStyle: string;
   dataDisplay: number,
-  colorDisplay: number,
   name: string,
   config: Partial<CONFIG>,
   peakSize: number
-}
-
-const defaultColorScheme: colorMap = {
-  sunny : "#d77403",
-  rainy : "#0473a6",
-  cloudy : "#6d8d9d",
-  lineIndex: ["#ff0000", "#00ff00", "#000000"]
 }
 
 @Component({
@@ -36,15 +26,29 @@ export class AppComponent {
 
   public colorSchemes: colorMap[];
 
-  public allDatasets: Data[][];
+  public data: DataService<[]>;
+
+  
+
+  public testDatasetB: DataBool[][];
+  public testDatasetN: DataNumber[][];
+  public testDatasetE: DataEnum<string[]>[][];
 
   public linecharts: linechart[];
 
   public BACK = -1;
   public NEXT = 1;
 
-  constructor(data : DataService) {
-    this.allDatasets = data.dataExemples;
+
+  constructor(data : DataService<number | boolean | string[]>) {
+    this.data = data;
+
+    this.testDatasetB = [];
+    this.testDatasetB = data.datasetsBool;
+    this.testDatasetN = [];
+    this.testDatasetN = data.datasetsNumber;
+    this.testDatasetE = [];
+    this.testDatasetE = data.datasetsEnum;
 
     this.config = {
       width: 900,
@@ -53,36 +57,32 @@ export class AppComponent {
       speedZoom: 0.2,
       range: [0,0],
       currentTime: 0,
-      scrollBar: false,
+      scrollBar: true,
       knobCurrentTime: false,
     }
-
 
     this.colorSchemes = [];
     data.initColorSchemes(this.colorSchemes, [data.colorScheme1, data.colorScheme2]);
 
     this.linecharts = [];
     this.linecharts.push({
-      data: this.allDatasets[5],
-      dataDisplay: 5,
-      colorDisplay: 0,
-      name: this.getAllNamesOfDataset(this.allDatasets[5]),
+      dataStyle: "boolean",
+      dataDisplay: 0,
+      name: this.getAllNamesOfDataset(this.testDatasetB[0]),
       config: this.config,
       peakSize: this.config.peakSize!=null?this.config.peakSize:5
     });
     this.linecharts.push({
-      data: this.allDatasets[8],
-      dataDisplay: 8,
-      colorDisplay: 0,
-      name: this.getAllNamesOfDataset(this.allDatasets[8]),
+      dataStyle: "number",
+      dataDisplay: 0,
+      name: this.getAllNamesOfDataset(this.testDatasetN[0]),
       config: this.config,
       peakSize: this.config.peakSize!=null?this.config.peakSize:5
     });
     this.linecharts.push({
-      data: this.allDatasets[9],
-      dataDisplay: 9,
-      colorDisplay: 0,
-      name: this.getAllNamesOfDataset(this.allDatasets[9]),
+      dataStyle: "enumeration",
+      dataDisplay: 0,
+      name: this.getAllNamesOfDataset(this.testDatasetE[0]),
       config: this.config,
       peakSize: this.config.peakSize!=null?this.config.peakSize:5
     })
@@ -97,38 +97,55 @@ export class AppComponent {
     this.config = {...this.config, currentTime};
   }
 
-  public changeLinechart(linechart: number, value: number){
-
+  public changeLinechart(linechart: number, value: number, style: string){
     this.linecharts[linechart].dataDisplay += value;
 
-    if(this.linecharts[linechart].dataDisplay == this.allDatasets.length) this.linecharts[linechart].dataDisplay = 0;
-    if(this.linecharts[linechart].dataDisplay == -1) this.linecharts[linechart].dataDisplay = this.allDatasets.length-1;
+    switch(style){
 
-    this.linecharts[linechart].data = this.allDatasets[this.linecharts[linechart].dataDisplay];
-    this.linecharts[linechart].name = this.getAllNamesOfDataset(this.linecharts[linechart].data);
+      case "number":
+        if(this.linecharts[linechart].dataDisplay == this.testDatasetN.length) this.linecharts[linechart].dataDisplay = 0;
+        if(this.linecharts[linechart].dataDisplay == -1) this.linecharts[linechart].dataDisplay = this.testDatasetN.length-1;
+    
+        this.linecharts[linechart].name = this.getAllNamesOfDataset(this.testDatasetN[linechart]);
+        break;
+
+      case "boolean":
+        if(this.linecharts[linechart].dataDisplay == this.testDatasetB.length) this.linecharts[linechart].dataDisplay = 0;
+        if(this.linecharts[linechart].dataDisplay == -1) this.linecharts[linechart].dataDisplay = this.testDatasetB.length-1;
+    
+        this.linecharts[linechart].name = this.getAllNamesOfDataset(this.testDatasetB[linechart]);
+        break;
+
+      case "enumeration":
+        if(this.linecharts[linechart].dataDisplay == this.testDatasetE.length) this.linecharts[linechart].dataDisplay = 0;
+        if(this.linecharts[linechart].dataDisplay == -1) this.linecharts[linechart].dataDisplay = this.testDatasetE.length-1;
+    
+        this.linecharts[linechart].name = this.getAllNamesOfDataset(this.testDatasetE[linechart]);
+        break;
+
+    }
+
+
+
   }
 
-  public updateDataIndex(linechart: number, data: Data[]) {
+  public updateDataIndex(linechart: number, data: Data<any>[]) {
 
     let dataDisplay: number = 0;
     let done: boolean = false;
     let n=0;
     let value = this.getAllNamesOfDataset(data);
 
-    while(!done && n<this.allDatasets.length){
-      if(value == this.getAllNamesOfDataset(this.allDatasets[n])){
-        dataDisplay = n
-        done = true;
-      }
-      n++
-    }
+    // while(!done && n<this.allDatasets.length){
+    //   if(value == this.getAllNamesOfDataset(this.allDatasets[n])){
+    //     dataDisplay = n
+    //     done = true;
+    //   }
+    //   n++
+    // }
 
     this.linecharts[linechart].dataDisplay = dataDisplay;
 
-  }
-
-  public updateColorIndex(linechart : number, index: number){
-    this.linecharts[linechart].colorDisplay = index;
   }
 
   public updateColor(linechart: number, color: string){
@@ -140,12 +157,13 @@ export class AppComponent {
 
   }
 
-  public getAllNamesOfDataset(datasets: Data[]): string {
+  public getAllNamesOfDataset(datasets: DataG<any>[]): string {
     let result = "";
+    if(datasets != null){
     datasets.forEach((data) => {
       result = result + data.label + ", ";
     });
-
+  }
     result = result.slice(0, result.length-2)
 
     return result;
@@ -209,10 +227,9 @@ export class AppComponent {
 
   public addLinechart(){
     this.linecharts.push({
-      data: this.allDatasets[0],
+      dataStyle: "number",
       dataDisplay: 0,
-      colorDisplay: 0,
-      name: this.getAllNamesOfDataset(this.allDatasets[0]),
+      name: this.getAllNamesOfDataset(this.testDatasetN[0]),
       config: this.config,
       peakSize: this.config.peakSize!=null?this.config.peakSize:5
     })
@@ -249,6 +266,37 @@ export class AppComponent {
 
   public heightUpdate(value: number){
     this.config.height = value*1.5;
+  }
+
+  public changeTypeOfLinechart(linechart: number, dataStyle: string){
+    switch(dataStyle){
+
+      case "number":
+        this.linecharts[linechart].dataStyle = "boolean";
+        this.linecharts[linechart].dataDisplay = 0;
+        this.linecharts[linechart].name = this.getAllNamesOfDataset(this.testDatasetB[0]);
+        this.linecharts[linechart].peakSize!=null?this.config.peakSize:5
+
+        break;
+
+      case "boolean":
+        this.linecharts[linechart].dataStyle = "enumeration";
+        this.linecharts[linechart].dataDisplay = 0;
+        this.linecharts[linechart].name = this.getAllNamesOfDataset(this.testDatasetE[0]);
+        this.linecharts[linechart].peakSize!=null?this.config.peakSize:5
+
+        break;
+
+      case "enumeration":
+        this.linecharts[linechart].dataStyle = "number";
+        this.linecharts[linechart].dataDisplay = 0;
+        this.linecharts[linechart].name = this.getAllNamesOfDataset(this.testDatasetN[0]);
+        this.linecharts[linechart].peakSize!=null?this.config.peakSize:5
+
+        break;
+
+    }
+    
   }
 
 }

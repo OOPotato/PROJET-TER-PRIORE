@@ -1,16 +1,22 @@
 import { NgModule } from '@angular/core';
-import { BasicLinechartComponent } from './basic-linechart.component';
+import { NumberLinechartComponent } from './number-linechart/number-linechart/number-linechart.component';
+import { EnumLinechartComponent } from './enum-linechart/enum-linechart/enum-linechart.component';
+import { BooleanLinechartComponent } from './boolean-linechart/boolean-linechart/boolean-linechart.component';
 
 
 
 @NgModule({
   declarations: [
-    BasicLinechartComponent,
+    NumberLinechartComponent,
+    EnumLinechartComponent,
+    BooleanLinechartComponent,
   ],
   imports: [
   ],
   exports: [
-    BasicLinechartComponent
+    NumberLinechartComponent,
+    EnumLinechartComponent,
+    BooleanLinechartComponent,
   ]
 })
 export class BasicLinechartModule { }

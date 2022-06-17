@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {colorMap, Data} from './basic-linechart.component';
+import {colorMap, DataG, DataBool, DataEnum, DataNumber} from 'src/lib/interfaces'
 import {rgb} from "d3";
 
 
@@ -38,12 +38,12 @@ const defaultColorScheme: colorMap = {
 /**
  * Service that give 6 example of dataset and function to parse DATA and Data from string.
  */
-export class DataService {
+export class DataService<T> {
 
   /**
    * str is an example of data's string
    */
-  private str: string = `
+  public str: string = `
   "2016-07-25 15:47:24,459";"PC6";"OFF"
   "2016-07-25 19:47:24,459";"PC6";"ON"
   "2016-07-26 05:47:24,459";"PC6";"OFF"
@@ -143,7 +143,12 @@ export class DataService {
   "2016-07-29 19:36:24,459";"Enum_2";"SUNNY"
   `;
 
-  public dataExemples: Data[][] = [];
+
+  public datasetsNumber: DataNumber[][] = [];
+  public datasetsBool: DataBool[][] = [];
+  public datasetsEnum: DataEnum<[string]>[][] = [];
+
+  public dataTestBool: DataBool[] = []; // TODO A SUPP
 
   public colorScheme1: colorMap;
   public colorScheme2: colorMap;
@@ -157,7 +162,7 @@ export class DataService {
   constructor() {
     this.nbOfData = this.countNumberOfData(this.str);
     for (let i = 0; i < this.nbOfData; i++) {
-      this.dataExemples[i] = [];
+      // this.dataExemples[i] = [];
     }
     this.generateExample(this.str);
 
@@ -177,77 +182,111 @@ export class DataService {
 
   }
 
-  /**
-   * Parse of str to obtain Data[]
-   * @param str
-   * @param label
-   * @param color
-   * @param style
-   * @param interpolation
-   * @param f
-   * @returns Data[]
-   */
-  public generateData(str:string, label:string, color:string, style: "both"|"line"|"area"|"bool"|"enum",interpolation: "step"|"linear", f: (s:string)=>number):Data{
-    let d: DATA<number>[] = this.parse<number>(str,label, f);
-    let v: [number,number][] = [];
+  public generateNumberData<T>(str:string, label:string, color:string,interpolation: "step"|"linear", f: (s:string)=>(number | boolean | string)): DataNumber{
+    let d: DATA<(number | boolean | string)>[] = this.parse<(number | boolean | string)>(str,label, f);
+    let v: [number,any][] = [];
     d.forEach(element =>v.push([element.timestamp,element.value]));
-    let da: Data = {
+    
+    return { 
       label: label,
       values: v,
-      color: color,
-      style: style,
+      style: "number",
+      color: this.randomColor(100),
       interpolation: interpolation
-    }
-    return da;
+    };
+
   }
+
+  public generateBoolData<T>(str:string, label:string, color:string, f: (s:string)=>(number | boolean | string)): DataBool{
+    let d: DATA<(number | boolean | string)>[] = this.parse<(number | boolean | string)>(str,label, f);
+    let v: [number,any][] = [];
+    d.forEach(element =>v.push([element.timestamp,element.value]));
+    
+    return { 
+      label: label,
+      values: v,
+      style: "boolean",
+      color: this.randomColor(100)
+    };
+
+  }
+
+  public generateEnumData<T>(str:string, label:string, color:string, f: (s:string)=>(number | boolean | string)): DataEnum<string[]>{
+    let d: DATA<(number | boolean | string)>[] = this.parse<(number | boolean | string)>(str,label, f);
+    let v: [number,any][] = [];
+    d.forEach(element =>v.push([element.timestamp,element.value]));
+    
+    let datatest: DataEnum<string[]> =  { 
+      label: label,
+      values: v,
+      style: "enumeration",
+      colors: {}
+    };
+
+    let enums = this.getEnums(this.str, label);
+
+    enums.forEach(e => {
+      datatest.colors[e] = this.randomColor(100);
+    });
+
+    return datatest;
+  }
+
 
   /**
    * Generate all dataset
    * @param str
    */
   private generateExample(str:string){
-    let d2: DATA<number>[] = this.parse<number>(str,"PC5", this.parseBool);
-    let v2: [number,number][] = [];
+    let d2: DATA<boolean>[] = this.parse<boolean>(str,"PC5", this.parseBool);
+    let v2: [number,boolean][] = [];
     d2.forEach(element =>v2.push([element.timestamp,element.value]));
-    let x:number = 0;
+    let x:boolean = false;
     v2.forEach(element=> {
         element[1]=x;
-        x=this.getRandomInt(x);
+        x=this.getRandomBoolean();
       }
     );
-    let da2: Data = {
+    let da2: DataBool = {
       label: "PC4",
       values: v2,
       color: "blue",
-      style: "line",
-      interpolation: "linear"
+      style: "boolean",
     }
 
-    this.dataExemples[0].push(da2);
-    this.dataExemples[1].push(this.generateData(str,"PC6","#048ba8","bool", "step",this.parseBool));
-    this.dataExemples[2].push(this.generateData(str,"PC6","#124568","area", "step",this.parseBool));
-    this.dataExemples[3].push(this.generateData(str,"Temperature_Salon", "purple", "line", "linear", parseFloat));
-    this.dataExemples[4].push(this.generateData(str,"Temperature_Cuisine", "gold", "line", "step", parseFloat));
-    this.dataExemples[5].push(this.generateData(str,"PC3","green","bool", "step",this.parseBool));
-    this.dataExemples[6].push(this.generateData(str,"PC5", "pink", "bool", "step", this.parseBool));
-    this.dataExemples[7].push(this.generateData(str,"Enum_1", "red", "enum", "step", this.parseEnum));
-    this.dataExemples.push([]);
-    this.dataExemples[8].push(this.generateData(str,"Enum_2", "#6a13ce", "enum", "step", this.parseEnum));
-    this.dataExemples.push([]);
-    this.dataExemples[9].push(this.generateData(str,"Temperature_Chambre", "#ff5e21", "line", "linear", parseFloat));
-    this.dataExemples.push([]);
-    this.dataExemples[10].push(this.generateData(str,"PC5", "#29fad4", "bool", "step", this.parseBool));
-    this.dataExemples[10].push(this.generateData(str,"PC6","#048ba8","bool", "step",this.parseBool));
-    this.dataExemples.push([]);
-    this.dataExemples[11].push(this.generateData(str,"Enum_2", "#6a13ce", "enum", "step", this.parseEnum));
-    this.dataExemples[11].push(this.generateData(str,"Enum_1", "red", "enum", "step", this.parseEnum));
-    this.dataExemples.push([]);
-    this.dataExemples[12].push(this.generateData(str,"Temperature_Salon", "purple", "line", "linear", parseFloat));
-    this.dataExemples[12].push(this.generateData(str,"Temperature_Cuisine", "gold", "line", "step", parseFloat));
-    this.dataExemples.push([]);
-    this.dataExemples[13].push(this.generateData(str,"PC5", "#29fad4", "bool", "step", this.parseBool));
-    this.dataExemples[13].push(this.generateData(str,"PC6","#048ba8","bool", "step",this.parseBool));
-    this.dataExemples[13].push(this.generateData(str,"PC3","#1160ff","bool", "step",this.parseBool));
+
+    this.datasetsBool.push([]);
+    this.datasetsBool[0].push(this.generateBoolData(str,"PC6","#048ba8", this.parseBool));
+    this.datasetsBool.push([]);
+    this.datasetsBool[1].push(this.generateBoolData(str,"PC6","#124568", this.parseBool));
+    this.datasetsBool.push([]);
+    this.datasetsBool[2].push(this.generateBoolData(str,"PC3","green", this.parseBool));
+    this.datasetsBool.push([]);
+    this.datasetsBool[3].push(this.generateBoolData(str,"PC5", "pink", this.parseBool));
+    this.datasetsBool.push([]);
+    this.datasetsBool[4].push(this.generateBoolData(str,"PC5", "#29fad4", this.parseBool));
+    this.datasetsBool[4].push(this.generateBoolData(str,"PC6","#048ba8", this.parseBool));
+    this.datasetsBool.push([]);
+    this.datasetsBool[5].push(this.generateBoolData(str,"PC5", "#29fad4", this.parseBool));
+    this.datasetsBool[5].push(this.generateBoolData(str,"PC6","#048ba8", this.parseBool));
+    this.datasetsBool[5].push(this.generateBoolData(str,"PC3","#1160ff", this.parseBool));
+    this.datasetsBool.push([]);
+    this.datasetsBool[6].push(da2);
+
+    this.datasetsNumber.push([]);
+    this.datasetsNumber[0].push(this.generateNumberData(str,"Temperature_Salon", "purple", "linear", parseFloat));
+    this.datasetsNumber.push([]);
+    this.datasetsNumber[1].push(this.generateNumberData(str,"Temperature_Cuisine", "gold", "step", parseFloat));
+    this.datasetsNumber.push([]);
+    this.datasetsNumber[2].push(this.generateNumberData(str,"Temperature_Chambre", "#ff5e21", "linear", parseFloat));
+    this.datasetsNumber.push([]);
+    this.datasetsNumber[3].push(this.generateNumberData(str,"Temperature_Salon", "purple",  "linear", parseFloat));
+    this.datasetsNumber[3].push(this.generateNumberData(str,"Temperature_Cuisine", "gold", "step", parseFloat));
+
+    this.datasetsEnum.push([]);
+    this.datasetsEnum[0].push(this.generateEnumData(str,"Enum_1", "red", this.parseEnum));
+    this.datasetsEnum.push([]);
+    this.datasetsEnum[1].push(this.generateEnumData(str,"Enum_2", "#6a13ce", this.parseEnum));
 
 
     // TODO IDEA BOOL IMPLEMENTATION //
@@ -263,18 +302,9 @@ export class DataService {
    * @param x
    * @returns x+1 or x-1 (random)
    */
-  private getRandomInt(x:number){
-    let alea: number;
-    if(x==0){
-      return 1;
-    }else{
-      alea=Math.round(Math.random());
-      if(alea==0){
-        return x-1;
-      }else{
-        return x+1;
-      }
-    }
+  private getRandomBoolean(){
+    let x = Math.round(Math.random());
+    return x == 1;
   }
 
   /**
@@ -282,17 +312,15 @@ export class DataService {
    * @param s
    * @returns 1 if s=='ON', -1 if s=='OFF' else 1
    */
-  public parseBool(s: string):number {
-    if(s=='ON') return -1;
-    else if (s=='OFF') return 1;
-    else return -2;
+  public parseBool(s: string):boolean {
+    if(s=='ON') return true;
+    else if (s=='OFF') return false;
+
+    return false;
   }
 
-  public parseEnum(s: string):number {
-    if(s=="SUNNY") return 1;
-    else if (s=="RAINY") return 2;
-    else if (s=="CLOUDY") return 3;
-    else return -2;
+  public parseEnum(s: string):string {
+    return s;
   }
 
   /**
@@ -341,10 +369,51 @@ export class DataService {
     return new Set(test2).size;
   }
 
+  public getEnums(str: string, enum_label: string): string[] {
+    // , dataLabel: string
+    let test: string[][] = str.trim().split("\n").map(s => s.trim()).filter(s => s!=="")
+      .map( s => s.split(";").map( s => s.slice(1, -1) ) );
+
+
+    let test2: string[] = [];
+
+    test.forEach((element: string[]) => {
+      
+      if(element[1] === enum_label){
+        test2.push(element[2]);
+
+      }
+
+    });
+
+    let test3 =new Set(test2);
+    // console.log(test);
+
+
+    let tuple : string[] = [];
+    test3.forEach((key, value) => {
+      tuple.push(key);
+    });
+
+    // console.log(tuple);
+
+    return tuple;
+  }
+
   public initColorSchemes(csToModify: colorMap[], readyColorScheme: colorMap[]){
     let n=0;
 
-    while(n<this.dataExemples.length) {
+    while(n<this.datasetsNumber.length) {
+      csToModify[n] = readyColorScheme[n] != null ? readyColorScheme[n] : this.randomColorScheme();
+      n++;
+    }
+
+    while(n<this.datasetsBool.length) {
+      csToModify[n] = readyColorScheme[n] != null ? readyColorScheme[n] : this.randomColorScheme();
+      n++;
+    }
+
+    while(n<this.datasetsEnum.length) {
       csToModify[n] = readyColorScheme[n] != null ? readyColorScheme[n] : this.randomColorScheme();
       n++;
     }

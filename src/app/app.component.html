@@ -12,77 +12,132 @@
     <!-------------------------------------------------------------------------------------------------------------------------------------------------------------->
     <tr *ngFor="let linechart of linecharts; let i = index" >
 
-      <th>
-        <button (click)="changeLinechart(i, BACK)">Graph before</button>
-        <button (click)="changeLinechart(i, NEXT)">Next graph</button>
-        <button (click)="showColorEdit(i)" id="btn-switch_{{i}}">Edit color Scheme</button>
-        <button (click)="showPeakEdit(i)" id="btn-show-peak_{{i}}">Edit boolean peak</button>
-        <button (click)="deleteLinechart(i)">Delete Linechart</button>
+      <div [ngSwitch]="linechart.dataStyle">
+
+        <th>
+          <button (click)="changeLinechart(i, BACK, linechart.dataStyle)">Graph before</button>
+          <button (click)="changeLinechart(i, NEXT, linechart.dataStyle)">Next graph</button>
+          <button (click)="showColorEdit(i)" id="btn-switch_{{i}}">Edit color Scheme</button>
+          <button (click)="showPeakEdit(i)" id="btn-show-peak_{{i}}">Edit boolean peak</button>
+          <button (click)="changeTypeOfLinechart(i, linechart.dataStyle)">Change type of Linechart</button>
+          <button (click)="deleteLinechart(i)">Delete Linechart</button>
 
 
-        <select [(ngModel)] = "linecharts[i].data" (ngModelChange)="updateDataIndex(i, $event)">
-          <option *ngFor="let data of allDatasets" [ngValue]="data">{{getAllNamesOfDataset(data)}}</option>
-        </select>
 
-      </th>
+          <!-- <select [(ngModel)] = "linecharts[i].data" (ngModelChange)="updateDataIndex(i, $event)">
+            <option *ngFor="let data of allDatasets" [ngValue]="data">{{getAllNamesOfDataset(data)}}</option>
+          </select> -->
 
-      <th>
-        <span id="linechart-label_{{i}}" > Dataset : {{linecharts[i].name}}</span>
-        <div id="color-edit_{{i}}" style="display: none">
-          <table>
-            <tr>
-              <th>
-                <span>Sunny : </span>
-              </th>
-              <th>
-<!--                <span>{{colorSchemes[linecharts[i].dataDisplay].sunny}}</span>-->
-                <input type="color" [(ngModel)]="colorSchemes[linecharts[i].dataDisplay].sunny">
-              </th>
-            </tr>
-            <tr>
-              <th>
-                <span>Rainy : </span>
-              </th>
-              <th>
-                <input type="color" [(ngModel)]="colorSchemes[linecharts[i].dataDisplay].rainy">
-              </th>
-            </tr>
-            <tr>
-              <th>
-                <span>Cloudy : </span>
-              </th>
-              <th>
-                <input type="color" [(ngModel)]="colorSchemes[linecharts[i].dataDisplay].cloudy">
-              </th>
-            </tr>
-            <tr>
-              <th>
-                <select [ngModel] = "colorSchemes[linecharts[i].dataDisplay]" (ngModelChange)="updateColorIndex(i, colorSchemes[linecharts[i].dataDisplay].lineIndex.indexOf($event))">
-                  <option *ngFor="let color of colorSchemes[linecharts[i].dataDisplay].lineIndex" [ngValue]="color">Line {{colorSchemes[linecharts[i].dataDisplay].lineIndex.indexOf(color)}}</option>
-                </select>
-              </th>
-              <th>
-                <input type="color" [(ngModel)]="colorSchemes[linecharts[i].dataDisplay].lineIndex[linecharts[i].colorDisplay]">
-              </th>
-            </tr>
-          </table>
+        </th>
+
+        <div *ngSwitchCase="'number'">
+          <th>
+            <span id="linechart-label_{{i}}" > Dataset : {{getAllNamesOfDataset(testDatasetN[linecharts[i].dataDisplay])}}</span>
+            <div id="color-edit_{{i}}" style="display: none">
+              <table>
+  
+                <tr *ngFor="let line of testDatasetN[linecharts[i].dataDisplay]; let n = index">
+                  <th>
+                    <span>Line {{ n+1 }} </span>  
+                  </th>
+                  <th>
+                    <input type="color" [(ngModel)]="line.color">
+                  </th>
+  
+                </tr>
+  
+              </table>
+              
+            </div>
+            <div id="peak-edit_{{i}}" style="display: none">
+              <input type="range" min="0" max="50" [(ngModel)] = "linecharts[i].peakSize">
+            </div>
+          </th>
+  
+          <th>
+              <number-linechart
+              [config] = "{width:config.width, height:config.height,knobCurrentTime: showKnob(0), scrollBar: showScrollBar(2), range: config.range, currentTime: config.currentTime, peakSize: linecharts[0].peakSize}"
+              [data]=testDatasetN[linecharts[i].dataDisplay]
+          
+            ></number-linechart>
+          </th>
         </div>
-        <div id="peak-edit_{{i}}" style="display: none">
-          <input type="range" min="0" max="50" [(ngModel)] = "linecharts[i].peakSize">
-        </div>
-      </th>
 
-      <th>
-        <lib-basic-linechart
-          [config] = "{width:config.width, height:config.height,knobCurrentTime: showKnob(i), scrollBar: showScrollBar(i), range: config.range, currentTime: config.currentTime, colorMap: colorSchemes[linecharts[i].dataDisplay], peakSize: linecharts[i].peakSize}"
-          [data]=linecharts[i].data
-          (rangeChange)="updateRange($event)"
-          (currentTimeChange)="updateCurrentTime($event)"
-        ></lib-basic-linechart>
-      </th>
+        <div *ngSwitchCase="'boolean'">
+          <th>
+            <span id="linechart-label_{{i}}" > Dataset : {{getAllNamesOfDataset(testDatasetB[linecharts[i].dataDisplay])}}</span>
+            <div id="color-edit_{{i}}" style="display: none">
+              <table>
+  
+                <tr *ngFor="let line of testDatasetB[linecharts[i].dataDisplay]; let n = index">
+                  <th>
+                    <span>Line {{ n+1 }} </span>
+                  </th>
+                  <th>
+                    <input type="color" [(ngModel)]="line.color">
+                  </th>
+  
+                </tr>
+  
+              </table>
+              
+            </div>
+            <div id="peak-edit_{{i}}" style="display: none">
+              <input type="range" min="0" max="50" [(ngModel)] = "linecharts[i].peakSize">
+            </div>
+          </th>
+  
+          <th>
+             <boolean-linechart
+              [config] = "{width:config.width, height:config.height,knobCurrentTime: showKnob(0), scrollBar: showScrollBar(2), range: config.range, currentTime: config.currentTime, peakSize: linecharts[0].peakSize}"
+              [data]=testDatasetB[linecharts[i].dataDisplay]
+            ></boolean-linechart>
+          </th> 
+
+        </div>
+
+
+        <div *ngSwitchCase="'enumeration'">
+
+          <th>
+            <span id="linechart-label_{{i}}" > Dataset : {{getAllNamesOfDataset(testDatasetE[linecharts[i].dataDisplay])}}</span>
+            <div id="color-edit_{{i}}" style="display: none">
+              <table>
+              <tr *ngFor="let enum of data.getEnums(data.str, testDatasetE[linecharts[i].dataDisplay][0].label);">
+                <th>
+                  <span> {{ enum }} </span>
+                </th>
+                <th>
+                  <input type="color" [(ngModel)]="this.testDatasetE[linecharts[i].dataDisplay][0].colors[enum]">
+                </th>
+              </tr>
+  
+              </table>
+            </div>
+            <div id="peak-edit_{{i}}" style="display: none">
+              <input type="range" min="0" max="50" [(ngModel)] = "linecharts[i].peakSize">
+            </div>
+          </th>
+  
+          <th>
+              <enum-linechart
+              [config] = "{width:config.width, height:config.height,knobCurrentTime: showKnob(0), scrollBar: showScrollBar(2), range: config.range, currentTime: config.currentTime, peakSize: linecharts[0].peakSize}"
+              [data]=testDatasetE[linecharts[i].dataDisplay]
+        
+            ></enum-linechart>
+          </th> 
+
+        </div>
+
+
+        
+      </div>
 
     </tr>
+
+
   </table>
+
   <!-- ######################################################################################################################################################### -->
 
   <div>
