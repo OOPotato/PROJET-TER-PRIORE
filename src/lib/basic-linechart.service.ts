@@ -148,7 +148,7 @@ export class DataService<T> {
   public datasetsBool: DataBool[][] = [];
   public datasetsEnum: DataEnum<[string]>[][] = [];
 
-  public dataTestBool: DataBool[] = []; // TODO A SUPP
+  public dataTestBool: DataBool[] = [];
 
   public colorScheme1: colorMap;
   public colorScheme2: colorMap;
@@ -162,7 +162,6 @@ export class DataService<T> {
   constructor() {
     this.nbOfData = this.countNumberOfData(this.str);
     for (let i = 0; i < this.nbOfData; i++) {
-      // this.dataExemples[i] = [];
     }
     this.generateExample(this.str);
 
@@ -186,8 +185,8 @@ export class DataService<T> {
     let d: DATA<(number | boolean | string)>[] = this.parse<(number | boolean | string)>(str,label, f);
     let v: [number,any][] = [];
     d.forEach(element =>v.push([element.timestamp,element.value]));
-    
-    return { 
+
+    return {
       label: label,
       values: v,
       style: "number",
@@ -201,8 +200,8 @@ export class DataService<T> {
     let d: DATA<(number | boolean | string)>[] = this.parse<(number | boolean | string)>(str,label, f);
     let v: [number,any][] = [];
     d.forEach(element =>v.push([element.timestamp,element.value]));
-    
-    return { 
+
+    return {
       label: label,
       values: v,
       style: "boolean",
@@ -215,8 +214,8 @@ export class DataService<T> {
     let d: DATA<(number | boolean | string)>[] = this.parse<(number | boolean | string)>(str,label, f);
     let v: [number,any][] = [];
     d.forEach(element =>v.push([element.timestamp,element.value]));
-    
-    let datatest: DataEnum<string[]> =  { 
+
+    let datatest: DataEnum<string[]> =  {
       label: label,
       values: v,
       style: "enumeration",
@@ -287,13 +286,6 @@ export class DataService<T> {
     this.datasetsEnum[0].push(this.generateEnumData(str,"Enum_1", "red", this.parseEnum));
     this.datasetsEnum.push([]);
     this.datasetsEnum[1].push(this.generateEnumData(str,"Enum_2", "#6a13ce", this.parseEnum));
-
-
-    // TODO IDEA BOOL IMPLEMENTATION //
-    // STRING TEST  "2016-07-25 15:47:19,423";"Enum_1";"SUNNY"
-    // Keep both but replace with "line&area" or smth for NOW
-    // We will have style: "both"|"line"|"area"|"bool" | "enum"
-    // this.dataExample8.push(this.generateData(str,"Enum_1", "red", "enum", "step", this.parseBool));
 
   }
 
@@ -370,7 +362,6 @@ export class DataService<T> {
   }
 
   public getEnums(str: string, enum_label: string): string[] {
-    // , dataLabel: string
     let test: string[][] = str.trim().split("\n").map(s => s.trim()).filter(s => s!=="")
       .map( s => s.split(";").map( s => s.slice(1, -1) ) );
 
@@ -378,7 +369,7 @@ export class DataService<T> {
     let test2: string[] = [];
 
     test.forEach((element: string[]) => {
-      
+
       if(element[1] === enum_label){
         test2.push(element[2]);
 
@@ -387,15 +378,12 @@ export class DataService<T> {
     });
 
     let test3 =new Set(test2);
-    // console.log(test);
 
 
     let tuple : string[] = [];
     test3.forEach((key, value) => {
       tuple.push(key);
     });
-
-    // console.log(tuple);
 
     return tuple;
   }

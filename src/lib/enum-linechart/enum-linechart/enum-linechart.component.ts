@@ -9,7 +9,7 @@ import { BasicLinechart } from 'src/lib/basic-linechart';
   styleUrls: ['./enum-linechart.component.css']
 })
 export class EnumLinechartComponent<T extends string[]> extends BasicLinechart<T[number]> implements OnInit {
- 
+
   override _config: CONFIG = defaultConfig;
   /*
    * Input data array that the component display
@@ -113,7 +113,7 @@ export class EnumLinechartComponent<T extends string[]> extends BasicLinechart<T
   }
 
   public ngOnChanges(changes: SimpleChanges): void {
-  
+
     if (changes['data']&&!changes['data'].firstChange) this.updateChart();
     if ((changes['data']&&!changes['data'].firstChange&&this.range[0]!=0&&this.range[1]!=0)||(changes['config']&&!changes['config'].firstChange)&&changes['']) {
       this.idZoom=Math.round(Math.log(this.lengthTime/(this.range[1]-this.range[0]))/Math.log(1+this.speedZoom));
@@ -144,12 +144,12 @@ export class EnumLinechartComponent<T extends string[]> extends BasicLinechart<T
       data.forEach(
         (elements,index) => elements.values.forEach(
           (element,i) => {
-          if(s=="yMin"){ res = 0;} 
-          else if (s=="yMax"){ res = this.svgHeight-20;} //TODO TO FIX 
+          if(s=="yMin"){ res = 0;}
+          else if (s=="yMax"){ res = this.svgHeight-20;} //TODO TO FIX
           if((s=="xMin"&&((i==0&&index==0)||element[0]<res))||(s=="xMax"&&((i==0&&index==0)||element[0]>res))){ res=element[0];}
         })
       );
-  
+
       return res;
     }
 
@@ -173,9 +173,9 @@ export class EnumLinechartComponent<T extends string[]> extends BasicLinechart<T
       this.dataZoomed[index].values.push([max,this.dataZoomed[index].values[this.dataZoomed[index].values.length-1][1]]);
     })
   }
- 
+
   override computePolyCoord(element: DataEnum<T>, index: number): polygonDef[] {
-    
+
     let allPolygonsPath: polygonDef[]= [];
     let polygonPath: polygonDef;
     let polyId: number = 0;
@@ -183,7 +183,6 @@ export class EnumLinechartComponent<T extends string[]> extends BasicLinechart<T
 
     let i:   number = 0;
     while(i < element.values.length-1) {
-        // if(element.values[i][1] != "UNKOWNN") { // Pourquoi "UNKNOWN" ?
           polygonPath = {
             name: "polygon "+polyId,
             points: [
@@ -192,15 +191,11 @@ export class EnumLinechartComponent<T extends string[]> extends BasicLinechart<T
               {x : this.scaleX(element.values[i+1][0]), y : this.svgHeight},
               {x : this.scaleX(element.values[i][0]), y : this.svgHeight},
             ],
-            // Quelle serait la définition correcte de la fonction selectColor ? | Hm oui peut être
-            // On a besoin de l'objet qui définit les couleurs c'est tout...Peut être pas besoin de fonction
-            color: (element.colors as {[k: string]: string})[ element.values[i][1] as string ] // XXX this.selectColor(element as unknown as DataEnum<string[]>, element.values[i][1]), // XXX
+            color: (element.colors as {[k: string]: string})[ element.values[i][1] as string ]
           }
 
           allPolygonsPath[polyId] = polygonPath;
           polyId++;
-
-      // }
       i++;
     }
 
@@ -209,7 +204,7 @@ export class EnumLinechartComponent<T extends string[]> extends BasicLinechart<T
   }
 
   override drawLineAndPath(): void{
-    
+
     this.dataZoomed.forEach(
       (element,index) => {
 
@@ -232,7 +227,7 @@ export class EnumLinechartComponent<T extends string[]> extends BasicLinechart<T
   }
 
   override updateLine(): void{
-    
+
     let polyUpdate;
     this.dataZoomed.forEach((element,index) => {
 
@@ -260,7 +255,7 @@ export class EnumLinechartComponent<T extends string[]> extends BasicLinechart<T
   }
 
   override buildLabels():void {
-    
+
     this.enumUTF8 = this.svg.selectAll(".utf8_label").data(this.dataZoomed);
 
     var utf8 = this.enumUTF8
@@ -276,11 +271,10 @@ export class EnumLinechartComponent<T extends string[]> extends BasicLinechart<T
 
         for (i; i < element.values.length - 1; i++) {
 
-          if (this.scaleX(element.values[i + 1][0]) - this.scaleX(element.values[i][0]) >= avgImgLength/* * element.values[i][1].length*/) { //TODO
+          if (this.scaleX(element.values[i + 1][0]) - this.scaleX(element.values[i][0]) >= avgImgLength) {
 
             utf8.append("text")
               .attr("class", "utf8_label")
-              // .text(element.values[i][1])
               .html(this.EnumToEnumUTF8(element.values[i][1]))
               .style("font-size", "30px")
               .attr("transform", "translate(" + (this.scaleX(element.values[i][0])+4) + "," + ((this.svgHeight / 2) + 10) + ")");
@@ -296,13 +290,13 @@ export class EnumLinechartComponent<T extends string[]> extends BasicLinechart<T
       /*
        * Translate numerical value to enumeration UTF8 image
        */
-    
+
       private EnumToEnumUTF8(value: string): string{
          if(value=="SUNNY"){ return "☀️";} // SUNNY
          else if (value=="RAINY") return "🌧️"; // RAINY
          else if (value=="CLOUDY") return "☁️"; //CLOUDY
          else return value;
-     
+
        }
 
 }

@@ -9,19 +9,6 @@ import { BasicLinechart } from 'src/lib/basic-linechart';
   styleUrls: ['./number-linechart.component.css']
 })
 
-// Ne pas étendre le basique line chart vous refaites une nouvelle classe qui contieznt le code à factoriser, avec des méthode protected
-// Cette classe ne doit pas être un composants, ce sont les classes qui en héritent qui le seron.
-// OK ?
-// class de base : contient le code à factoriser : pas de décoreateur de composant
-//   3 classes qui en héritent, une pour chaque type de visu, ces classes sont décorées pour être des composants (avec le décorateur @Compoennt)
-
-// C'est bon comme ça ?
-
-// Donc, je dois juste supprimer le décorateur de la classe de base ? Et enlever les composant, juste mettre le décorateur ?
-// code à factoriser = code qui ne dépend pas du type de data donc ? 
-// (dans la classe génerique on garde Data<T> au possible ? car la plupart du code utilise dataZoomed qui dépend du type Enum/Bool/Number)
-
-// 
 export class NumberLinechartComponent extends BasicLinechart<number> implements OnInit {
 
   override _config: CONFIG = defaultConfig;
@@ -129,7 +116,7 @@ export class NumberLinechartComponent extends BasicLinechart<number> implements 
   }
 
   public ngOnChanges(changes: SimpleChanges): void {
-  
+
     if (changes['data']&&!changes['data'].firstChange) this.updateChart();
     if ((changes['data']&&!changes['data'].firstChange&&this.range[0]!=0&&this.range[1]!=0)||(changes['config']&&!changes['config'].firstChange)&&changes['']) {
       this.idZoom=Math.round(Math.log(this.lengthTime/(this.range[1]-this.range[0]))/Math.log(1+this.speedZoom));
@@ -195,7 +182,7 @@ export class NumberLinechartComponent extends BasicLinechart<number> implements 
   }
 
   override drawLineAndPath(): void{
-    
+
     this.dataZoomed.forEach(
       (element,index) => {
 
@@ -212,7 +199,7 @@ export class NumberLinechartComponent extends BasicLinechart<number> implements 
   }
 
   override updateLine(): void{
-    
+
     let lineUpdate;
     this.dataZoomed.forEach((element,index) => {
 

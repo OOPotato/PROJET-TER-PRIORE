@@ -10,15 +10,14 @@
     colors?: unknown
   }
 
-export interface DataEnum<T extends string[]> extends DataG<T[number]> { //interface DataEnum<T extends string[]> extends DataG<T[keyof T]> {
+export interface DataEnum<T extends string[]> extends DataG<T[number]> {
     style: "enumeration";
     label: string;
-    // values: [number, T[number]][];
     colors: {
       [k in T[number]]: string; // Couleur de chaque valeur
     };
   }
-    
+
 export interface DataBool extends DataG<boolean> {
   style: "boolean";
   label: string;
@@ -26,7 +25,7 @@ export interface DataBool extends DataG<boolean> {
   color: string; // La couleur de quand c'est vrai
 }
 
-  
+
 export interface DataNumber extends DataG<number> {
   style: "number";
   label: string;
@@ -39,8 +38,8 @@ export type Data<T> =
     T extends number ? DataNumber:
     T extends boolean ? DataBool :
     T extends string[] ? DataEnum<T> : never;
-    
-  
+
+
   export interface CONFIG {
     width: number;
     height: number;
@@ -52,21 +51,21 @@ export type Data<T> =
     knobCurrentTime: boolean;
     peakSize: number
   }
-  
+
   export interface colorMap {
     sunny: string;
     rainy: string;
     cloudy: string;
     lineIndex: string[];
   }
-  
+
   export const defaultColorMap: colorMap = {
     sunny : "#d77403",
     rainy : "#0473a6",
     cloudy : "#6d8d9d",
     lineIndex: ["#ff0000"]
   }
-  
+
   export const defaultConfig: CONFIG = {
     width: 900,
     height: 80,
@@ -77,17 +76,16 @@ export type Data<T> =
     scrollBar: false,
     knobCurrentTime: false,
     peakSize: 5,
-  
+
   }
-  
+
   export interface polygonDef {
     "name": string;
     "points": points[];
     "color": string;
   }
-  
+
   export interface points {
     "x": number;
     "y": number;
   }
-  

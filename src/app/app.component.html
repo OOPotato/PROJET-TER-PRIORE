@@ -23,11 +23,6 @@
           <button (click)="deleteLinechart(i)">Delete Linechart</button>
 
 
-
-          <!-- <select [(ngModel)] = "linecharts[i].data" (ngModelChange)="updateDataIndex(i, $event)">
-            <option *ngFor="let data of allDatasets" [ngValue]="data">{{getAllNamesOfDataset(data)}}</option>
-          </select> -->
-
         </th>
 
         <div *ngSwitchCase="'number'">
@@ -35,30 +30,30 @@
             <span id="linechart-label_{{i}}" > Dataset : {{getAllNamesOfDataset(testDatasetN[linecharts[i].dataDisplay])}}</span>
             <div id="color-edit_{{i}}" style="display: none">
               <table>
-  
+
                 <tr *ngFor="let line of testDatasetN[linecharts[i].dataDisplay]; let n = index">
                   <th>
-                    <span>Line {{ n+1 }} </span>  
+                    <span>Line {{ n+1 }} </span>
                   </th>
                   <th>
                     <input type="color" [(ngModel)]="line.color">
                   </th>
-  
+
                 </tr>
-  
+
               </table>
-              
+
             </div>
             <div id="peak-edit_{{i}}" style="display: none">
               <input type="range" min="0" max="50" [(ngModel)] = "linecharts[i].peakSize">
             </div>
           </th>
-  
+
           <th>
               <number-linechart
               [config] = "{width:config.width, height:config.height,knobCurrentTime: showKnob(0), scrollBar: showScrollBar(2), range: config.range, currentTime: config.currentTime, peakSize: linecharts[0].peakSize}"
               [data]=testDatasetN[linecharts[i].dataDisplay]
-          
+
             ></number-linechart>
           </th>
         </div>
@@ -68,7 +63,7 @@
             <span id="linechart-label_{{i}}" > Dataset : {{getAllNamesOfDataset(testDatasetB[linecharts[i].dataDisplay])}}</span>
             <div id="color-edit_{{i}}" style="display: none">
               <table>
-  
+
                 <tr *ngFor="let line of testDatasetB[linecharts[i].dataDisplay]; let n = index">
                   <th>
                     <span>Line {{ n+1 }} </span>
@@ -76,23 +71,23 @@
                   <th>
                     <input type="color" [(ngModel)]="line.color">
                   </th>
-  
+
                 </tr>
-  
+
               </table>
-              
+
             </div>
             <div id="peak-edit_{{i}}" style="display: none">
               <input type="range" min="0" max="50" [(ngModel)] = "linecharts[i].peakSize">
             </div>
           </th>
-  
+
           <th>
              <boolean-linechart
               [config] = "{width:config.width, height:config.height,knobCurrentTime: showKnob(0), scrollBar: showScrollBar(2), range: config.range, currentTime: config.currentTime, peakSize: linecharts[0].peakSize}"
               [data]=testDatasetB[linecharts[i].dataDisplay]
             ></boolean-linechart>
-          </th> 
+          </th>
 
         </div>
 
@@ -111,26 +106,26 @@
                   <input type="color" [(ngModel)]="this.testDatasetE[linecharts[i].dataDisplay][0].colors[enum]">
                 </th>
               </tr>
-  
+
               </table>
             </div>
             <div id="peak-edit_{{i}}" style="display: none">
               <input type="range" min="0" max="50" [(ngModel)] = "linecharts[i].peakSize">
             </div>
           </th>
-  
+
           <th>
               <enum-linechart
               [config] = "{width:config.width, height:config.height,knobCurrentTime: showKnob(0), scrollBar: showScrollBar(2), range: config.range, currentTime: config.currentTime, peakSize: linecharts[0].peakSize}"
               [data]=testDatasetE[linecharts[i].dataDisplay]
-        
+
             ></enum-linechart>
-          </th> 
+          </th>
 
         </div>
 
 
-        
+
       </div>
 
     </tr>

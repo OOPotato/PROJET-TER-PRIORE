@@ -11,135 +11,135 @@ export class BasicLinechart<T> {
     get config(): Partial<CONFIG> {return this._config;}
     set config(c: Partial<CONFIG>) {
       this._config = {...defaultConfig, ...c};
-  
+
     }
 
     get width(): number {return <number>this.config.width;}
     set width(value: number) { this.config.width = value; }
-  
+
     get height(): number {return <number>this.config.height;}
     set height(value: number) { this.config.height = value; }
-  
+
     get domainY(): [number, number] {return <[number, number]> this.config.domainY;}
     set domainY(value: [number, number]) { this.config.domainY = value;}
-  
+
     get speedZoom(): number {return <number>this.config.speedZoom;}
     set speedZoom(value: number) { this.config.speedZoom = value; }
-  
+
     get range(): [number, number] {return <[number, number]> this.config.range;}
     set range(value: [number, number]) {  this.config.range = value;  }
-  
+
     get currentTime(): number {return <number>this.config.currentTime;}
     set currentTime(value: number) { this.config.currentTime = value; }
-  
+
     get scrollBar(): boolean {return <boolean> this.config.scrollBar;}
     set scrollBar(value: boolean) { this.config.scrollBar = value; }
-  
+
     get knobCurrentTime(): boolean {return <boolean> this.config.knobCurrentTime;}
     set knobCurrentTime(value: boolean) { this.config.knobCurrentTime = value; }
-  
+
     /*
      * Input data array that the component display
      * Default value : []
      */
     data: /*Data*/DataG<T>[] = [];
-  
+
     /*
      * ElementRef of DOM Element root
      * It's a svg with the linechart
      */
     timeline!: ElementRef;
 
-    
+
     /*
      * ElementRef of DOM Element scroll
      * It's a div that will be the scrollbar
      */
     scrollbar!: ElementRef;
-  
+
     /*
      * ElementRef of DOM Element zone
      * It's a div that will be the zone of scrollbar
      */
     zoneScrollbar!: ElementRef;
-  
+
     /*
      * ElementRef of DOM Element element
      * It's a div that contains all the others Dom Element
      */
     compo!: ElementRef;
-  
+
     /*
      * Output rangeChange that emit range
      */
     rangeChange = new EventEmitter<[number,number]>();
-  
+
     /*
      * Output currentTimeChange that emit currentTime
      */
     currentTimeChange = new EventEmitter<number>();
-  
-  
+
+
     /*
      * Title of the component
      */
     public title:string = 'Timeline : ';
-  
+
     /*
      * svg that contain the linechart and the axis
      */
     protected svg: any;
-  
+
     /*
      * Width of the svg
      */
     protected svgWidth: number = 0;
-  
+
     /*
      * Height of the svg
      */
     protected svgHeight: number = 0;
-  
+
     /*
      * Margin of the component
      */
     protected margin:{top:number,right:number,bottom:number,left:number} = { top: 20, right: 20, bottom: 20, left: 30 }; //marge interne au svg
-  
+
     /*
      * Scale of the X axis
      */
     protected scaleX: ScaleTime<number,number> = d3.scaleTime();
-  
+
     /*
      * Scale of the Y axis
      */
     protected scaleY: ScaleLinear<number,number> = d3.scaleLinear();
-  
+
     /*
      * It's the smallest timestamp of data
      */
     protected minTime: number = 0;
-  
+
     /*
      * It's the biggest timestamp of data
      */
     protected maxTime: number = 0;
-  
+
     /*
      * It's the difference between the smallest and the biggest Time (maxTime - minTime)
      */
     protected lengthTime: number = 0;
-  
+
     /*
      * Array of area definition
      */
     private area: d3.Area<[number, number]>[] = [];
-  
+
     /*
      * Array of line definition
      */
     protected line: d3.Line<[number, number]>[] = [];
-  
+
     /*
      * Array of line definition
      */
@@ -150,72 +150,72 @@ export class BasicLinechart<T> {
      * the lineBoolBottom will switch sides with Top
      */
     private lineSwitch: boolean = false;
-  
+
     /*
      * dataZoomed is a copy of data with the range specify
      */
     public dataZoomed: typeof this.data = []; // Data<T>[] = [];
-  
+
     /*
      * idZoom is the number of wheel notch
      */
     protected idZoom: number = 0;
-  
+
     /*
      * true if the CTRL Key of keyBoard is push
      */
     protected zoomSelected: boolean = false
-  
+
     /*
      * Svg definition of enum Labels
      */
-    protected enumUTF8!: Selection<SVGGElement,unknown,null,undefined>; // TODO DEFINIR UNIQUEMENT DANS enum-linechart ?
-  
+    protected enumUTF8!: Selection<SVGGElement,unknown,null,undefined>;
+
     /*
      * Svg definition of enum Labels
      */
     private enumLabel!: Selection<SVGGElement,unknown,null,undefined>;
-  
+
     /*
      * Svg definition of the tooltip
      */
     protected tooltip!: Selection<SVGGElement,unknown,null,undefined>;
-  
+
     /*
      * Mode of the tooltip
      */
     protected modeToolTips: "normal" | "inverse" = "normal";
-  
+
     /*
      * true if the currentTimeline is selected
      */
     private currentTimeSelected:boolean = false;
-  
+
     /*
      * true if the scrollbar is selected
      */
     private scrollbarSelected:boolean = false;
-  
+
     /*
      * data length before the new change
      */
     protected lastDatalength:number = 0;
-  
+
     /*
      * Last position of the mouse
      */
     private lastPos: number = 0;
-  
+
     handleKeyDown(event: KeyboardEvent){
       if(event.ctrlKey&&!this.zoomSelected){
         this.zoomSelected = true;
       }
     }
-    
+
     handleKeyUp(){
       this.zoomSelected = false;
     }
-  
+
     constructor(private renderer: Renderer2) {
     }
 
@@ -236,14 +236,14 @@ export class BasicLinechart<T> {
           .on("mouseup", () => this.currentTimeSelected=false)
           .on("mouseover", (event: MouseEvent) => event.preventDefault());
       }
-    
+
       /*
        * Build the style (area, line or both) and the interpolation (step or linear) of lines
        * @param {Data} element
        * @param {number} index
        */
       protected buildStyleData(element: DataG<T>, index:number): void {
-    
+
         if (element.style == "number") {
           if (element.interpolation == "step") {
             this.line[index] = d3.line()
@@ -255,21 +255,21 @@ export class BasicLinechart<T> {
               .x((d: number[]) => this.scaleX(d[0]))
               .y((d: number[]) => this.scaleY(d[1]));
           }
-    
+
           if (!this.controlColor(element.color as string)) { // Projection
             console.warn("Data with " + element.label + " label, has an unvalid color attribute (" + element.color + "). Replace with the default color (black).");
             element.color = "black";
           }
         }
       }
-    
-    
+
+
       protected computePolyCoord(element: DataG<T>, index: number): polygonDef[] {
         console.log("Undefined (computePolyCoord) - basic-linechart class called ..");
 
         return [];
       }
-    
+
       /*
        * Save information for zoom.
        * XXX Attention ici que se passe-t-il si on zoom sur des boolean ou des énumérables ?
@@ -280,7 +280,7 @@ export class BasicLinechart<T> {
         this.lengthTime = this.maxTime - this.minTime;
         this.idZoom=0;
       }
-    
+
       /*
        * Draw the tooltips's svg
        */
@@ -358,7 +358,7 @@ export class BasicLinechart<T> {
           });
         }
       }
-    
+
       /*
        * Draw horizontal and vertical axis and scale
        */
@@ -374,113 +374,113 @@ export class BasicLinechart<T> {
           .attr('transform', 'translate(0,' + this.svgHeight + ')')
           .attr('class', 'xAxis')
           .call(d3.axisBottom(this.scaleX));
-    
-    
-    
+
+
+
         // Configure the Y Axis
         this.data.forEach((element,index) => {
           if(element.style == "boolean" || element.style == "enumeration"){
-    
+
             if(this.discreteValue(this.data)){
               this.svg.append('g')
                 .attr('class', 'yAxis')
                 .call(d3.axisLeft(this.scaleY).ticks([]));
-    
+
             }else {
-    
+
               this.svg.append('g')
                 .attr('class', 'yAxis')
                 .call(d3.axisLeft(this.scaleY));
             }
-    
+
           } else {
-    
+
             this.svg.append('g')
               .attr('class', 'yAxis')
               .call(d3.axisLeft(this.scaleY)
                 .ticks(2)
                 .tickValues([this.scale(this.data,"yMin"), this.scale(this.data,"yMax")]));
-    
+
           }
-    
+
         });
-    
+
       }
-    
+
       /*
        *  Update Axis
        */
-    
+
       private updateAxis(): void {
-    
+
         // x Axis
         this.svg.selectAll('.xAxis').call(d3.axisBottom(this.scaleX));
-    
+
         // y Axis
         this.data.forEach((element,index) => {
           if (element.style == "boolean" || element.style == "enumeration") {
             if(this.discreteValue(this.data)){
               this.svg.selectAll('.yAxis')
                 .call(d3.axisLeft(this.scaleY).ticks([]));
-    
+
             } else {
               this.svg.selectAll('.yAxis')
                 .call(d3.axisLeft(this.scaleY));
-    
+
             }
-    
+
           } else {
             this.svg.selectAll('.yAxis')
               .call(d3.axisLeft(this.scaleY)
                 .ticks(2)
                 .tickValues([this.scale(this.data,"yMin"), this.scale(this.data,"yMax")]));
           }
-    
+
         });
       }
-  
-    
+
+
       /*
        * Draw lines on the line chart
        */
       protected drawLineAndPath(): void{
         console.log("Undefined (drawLineAndPath) - basic-linechart class called ..");
       }
-    
-    
+
+
       /*
        * Build and draw labels
        */
       protected buildLabels():void {
-    
+
       }
-    
+
       /*
        * Update the Labels
        */
-    
+
       protected updateLabels(): void {
           this.svg.selectAll(".label").remove();
           this.svg.selectAll(".utf8_label").remove();
         this.buildLabels();
       }
-    
-    
+
+
       /*
        * Translate numerical value to enumeration text
        */
-    
+
       private  intToEnumTxt(value: number): string{
         if(value==1) return "SUNNY";
         else if (value==2) return "RAINY";
         else if (value==3) return "CLOUDY";
         else return "UNKNOWN";
-    
-      }
-    
 
-    
-    
+      }
+
+
+
+
       /*
        * Draw the vertical line which represents the current time
        */
@@ -502,7 +502,7 @@ export class BasicLinechart<T> {
             .style('fill', 'none')
             .style('stroke', 'red')
             .style('stroke-width', '3px');
-    
+
           //Selector Circle
           if(this.knobCurrentTime) {
             this.svg.append('circle')
@@ -518,7 +518,7 @@ export class BasicLinechart<T> {
           }
         }
       }
-    
+
       /*
        * Draw the scrollbar and event listener on it
        */
@@ -534,19 +534,19 @@ export class BasicLinechart<T> {
           this.scrollbar.nativeElement.style.backgroundColor = "grey";
           this.scrollbar.nativeElement.style.borderRadius = "10px";
           this.compo.nativeElement.style.width = this.svgWidth+this.margin.left+"px";
-          // this.compo.nativeElement.style.padding = "10px 10px 10px 10px"; // TODO PADDING REMOVE BECAUSE CHART NOT IN LINE WITH OTHERS
+          // this.compo.nativeElement.style.padding = "10px 10px 10px 10px"; // PADDING REMOVE BECAUSE CHART NOT IN LINE WITH OTHERS
           this.renderer.listen(this.scrollbar.nativeElement, 'mousedown', (event:MouseEvent) => this.activeScrollbar(event));
           this.renderer.listen(window, 'mouseup', () => this.desactiveScrollbar());
           this.renderer.listen(window,'mousemove', (event:MouseEvent) => this.updateRange(event));
         }
       }
-    
-    
+
+
       private hideScrollbar(): void {
         this.zoneScrollbar.nativeElement.remove();
         this.scrollbar.nativeElement.remove();
       }
-    
+
       /*
        * Update all the line chart (horizontal and vertical axis and scale, data, lines and range) on data changes.
        */
@@ -555,12 +555,8 @@ export class BasicLinechart<T> {
         this.data.forEach(
           (element,index) => {
             this.buildStyleData(element,index);
-            // if(element.style=="area") this.svg.selectAll('.line'+index).remove(); //TODO A SUPP
-            // if(element.style=="number") this.svg.selectAll('.area'+index).remove();
-            // if(element.style=="boolean") {
             this.svg.selectAll('.line'+index).remove();
             this.svg.selectAll('.poly'+index).remove();
-            // }
             this.title = 'Timeline : ';
             if(index==this.data.length-1) this.title = this.title+element.label+'.';
             else this.title = this.title+element.label + ', ';
@@ -570,9 +566,9 @@ export class BasicLinechart<T> {
         this.scaleY.range([this.svgHeight, 0]);
         this.controlDomain();
         this.scaleY.domain(this.controlDomain());
-    
+
         this.updateAxis();
-    
+
         this.svg.selectAll('.currentTimeLine').remove();
         this.svg.selectAll('.currentTimeSelector').remove();
         this.updateLine();
@@ -586,7 +582,7 @@ export class BasicLinechart<T> {
         }
         this.lastDatalength=this.dataZoomed.length;
       }
-    
+
       /*
        * Update horizontal axis, current time line, lines and scrollbar
        * @param {number} min of the new range
@@ -599,16 +595,16 @@ export class BasicLinechart<T> {
         this.updateCurrentTime();
         this.updateScrollbar(min,max);
         this.updateLabels();
-    
+
       }
-    
+
       /*
        * Update the display of lines
        */
       protected updateLine(): void{
         console.log("Undefined (updateLine) - basic-linechart class called ..");
       }
-    
+
       /*
        * Update the position of the current time line
        */
@@ -634,7 +630,7 @@ export class BasicLinechart<T> {
         }
         this.svg.selectAll('.currentTimeSelector').attr('cx',x);
       }
-    
+
       /*
        * Update the position of the scrollbar
        * @param {number} min of the new range
@@ -648,7 +644,7 @@ export class BasicLinechart<T> {
           this.hideScrollbar();
         }
       }
-    
+
       /*
        * Change the range, control it, update datas, update the linechart and then emit the new range.
        * @param {MouseEvent} event
@@ -668,20 +664,20 @@ export class BasicLinechart<T> {
           this.updateSvg(this.range[0],this.range[1]);
           this.rangeChange.emit(this.range);
           this.lastPos=pos;
-    
+
         }
-    
+
       }
-    
+
       /*
        * Change this.dataZoomed at range changes
        * @param {number} min of the new range
        * @param {number} max of the new range
        */
-      protected updateDataZoom(min:number,max:number): void{ // TODO TO SUB
+      protected updateDataZoom(min:number,max:number): void{
         console.log("Undefined (updateDataZoom) - basic-linechart class called ..");
       }
-    
+
       /*
        * Remove and build a new tooltips
        */
@@ -689,7 +685,7 @@ export class BasicLinechart<T> {
         this.tooltip.remove();
         this.drawToolTips();
       }
-    
+
       /*
        * Active movement of scrollbar on mousedown on it
        * @param {MouseEvent} event
@@ -700,7 +696,7 @@ export class BasicLinechart<T> {
           this.lastPos=event.clientX-this.margin.left;
         }
       }
-    
+
       /*
        * Desactive movement of scrollbar on mouseup or mouseleave on it
        */
@@ -708,23 +704,23 @@ export class BasicLinechart<T> {
         this.scrollbarSelected=false;
         this.lastPos=0;
       }
-    
+
       /*
        * Show the tooltips on the movement of the mouse
        * @param {MouseEvent} event
        */
       private showInfo(event: MouseEvent): void{
-    
-        
+
+
       }
-    
+
       /*
        * Hide the tooltips when the mouse leave the svg
        */
       private hideInfo(): void{
         this.tooltip.style("display", "none");
       }
-    
+
       /*
        * Update the range (reduce or increase) of the linechart on scroll
        * @param {WheelEvent} event
@@ -747,29 +743,20 @@ export class BasicLinechart<T> {
             this.updateDataZoom(this.range[0],this.range[1]);
             this.updateSvg(this.range[0],this.range[1]);
             this.rangeChange.emit(this.range);
-    
+
           }else{
             this.idZoom--;
           }
         }
       }
-    
+
       /*
        * Update the value of current time on the movement of the mouse
        * @param {MouseEvent} event
        */
       private moveCurrentTime(event: MouseEvent): void{
         event.preventDefault();
-        // console.log("moveCurrentTime - clientX = " + event.clientX + " | marginleft : " + this.margin.left);
-        // console.log("moveCurrentTime - invert = " + this.scaleX.invert(event.clientX-this.margin.left));
-        // console.log("this.dataZoomed : ");
-        // console.log(this.dataZoomed);
-    
         let pos = this.scaleX.invert(event.clientX-this.margin.left).getTime();
-        // console.log("moveCurrentTime - pos = " + pos);
-        // console.log("moveCurrentTime - xMin = " + this.scale(this.dataZoomed,"xMin"));
-        // console.log("moveCurrentTime - xMax = " + this.scale(this.dataZoomed,"xMax"));
-    
         if(pos<this.scale(this.dataZoomed,"xMin")){
           this.currentTime=this.scale(this.dataZoomed,"xMin");
         }else if(pos>this.scale(this.dataZoomed,"xMax")){
@@ -777,13 +764,11 @@ export class BasicLinechart<T> {
         }else{
           this.currentTime=pos;
         }
-    
-        // console.log("moveCurrentTime - this.currentTime = " + this.currentTime);
-    
+
         this.updateCurrentTime();
         this.currentTimeChange.emit(this.currentTime);
       }
-    
+
       /*
        * Control the range based on data's timestamp and the new range
        * @param {number} min of the new range
@@ -800,7 +785,7 @@ export class BasicLinechart<T> {
         if(this.minTime>min) min=this.minTime;
         return [min,max];
       }
-    
+
       /*
        * Control the domain based on data's value type and the input domain
        * @returns a new domain auto-scaled if the input domain is equal to [0,0] or the data's value are positive integers, else return the input domain
@@ -812,7 +797,7 @@ export class BasicLinechart<T> {
           return this.domainY;
         }
       }
-    
+
       /*
        * Control the color based on css-colors-name and hex-color-code
        * @param {string} color
@@ -823,7 +808,7 @@ export class BasicLinechart<T> {
         s.color = color;
         return s.color!="";
       }
-    
+
       /*
        * Control the speedZoom if it isn't between 0 and 1.
        */
@@ -834,30 +819,30 @@ export class BasicLinechart<T> {
           this.speedZoom=1;
         }
       }
-    
+
       /*
        * Determine the minimum or maximum of the horizontal or vertical axis in data
        * @param {Data[]} data Array of Data
        * @param {"xMin" | "xMax" | "yMin" | "yMax"} s precise which scale we want
        * @returns the value that matches with the parameter s in data
        */
-      protected scale(data: DataG<T>[], s: "xMin" | "xMax" | "yMin" | "yMax"): number { // TODO TO SUB
+      protected scale(data: DataG<T>[], s: "xMin" | "xMax" | "yMin" | "yMax"): number {
         console.log("Undefined (scale) - basic-linechart class called ..");
         return 0;
       }
-    
+
       /*
        *Check type of data (positive integer or float)
        *@param {Data[]} data Array of Data
        *@returns false if there is at least one value in data that's not a positive integer
        *  XXX C'est quoi cette méthode, usage ??? Il me semble que c'est pour des donner des valeurs discrètes pour construire l'axe Y, car il a besoin de cet type de valeur quand il s'agit d'énumération et booléens
-    
+
        */
-      protected discreteValue(data: DataG<T>[]): boolean{ // TODO TO SUB
+      protected discreteValue(data: DataG<T>[]): boolean{
         console.log("Undefined (discreteValue) - basic-linechart class called ..");
         return true;
       }
-    
+
       /*
        * Round a number with a roundDecimalprecision
        * @param {number} num
@@ -868,6 +853,6 @@ export class BasicLinechart<T> {
         let tmp: number = Math.pow(10, precision);
         return Math.round( num*tmp )/tmp;
       }
-    
-    
+
+
 }

@@ -28,7 +28,7 @@ export class AppComponent {
 
   public data: DataService<[]>;
 
-  
+
 
   public testDatasetB: DataBool[][];
   public testDatasetN: DataNumber[][];
@@ -105,55 +105,27 @@ export class AppComponent {
       case "number":
         if(this.linecharts[linechart].dataDisplay == this.testDatasetN.length) this.linecharts[linechart].dataDisplay = 0;
         if(this.linecharts[linechart].dataDisplay == -1) this.linecharts[linechart].dataDisplay = this.testDatasetN.length-1;
-    
+
         this.linecharts[linechart].name = this.getAllNamesOfDataset(this.testDatasetN[linechart]);
         break;
 
       case "boolean":
         if(this.linecharts[linechart].dataDisplay == this.testDatasetB.length) this.linecharts[linechart].dataDisplay = 0;
         if(this.linecharts[linechart].dataDisplay == -1) this.linecharts[linechart].dataDisplay = this.testDatasetB.length-1;
-    
+
         this.linecharts[linechart].name = this.getAllNamesOfDataset(this.testDatasetB[linechart]);
         break;
 
       case "enumeration":
         if(this.linecharts[linechart].dataDisplay == this.testDatasetE.length) this.linecharts[linechart].dataDisplay = 0;
         if(this.linecharts[linechart].dataDisplay == -1) this.linecharts[linechart].dataDisplay = this.testDatasetE.length-1;
-    
+
         this.linecharts[linechart].name = this.getAllNamesOfDataset(this.testDatasetE[linechart]);
         break;
 
     }
 
 
-
-  }
-
-  public updateDataIndex(linechart: number, data: Data<any>[]) {
-
-    let dataDisplay: number = 0;
-    let done: boolean = false;
-    let n=0;
-    let value = this.getAllNamesOfDataset(data);
-
-    // while(!done && n<this.allDatasets.length){
-    //   if(value == this.getAllNamesOfDataset(this.allDatasets[n])){
-    //     dataDisplay = n
-    //     done = true;
-    //   }
-    //   n++
-    // }
-
-    this.linecharts[linechart].dataDisplay = dataDisplay;
-
-  }
-
-  public updateColor(linechart: number, color: string){
-    // this.linecharts[linechart].colorScheme.sunny = color;
-    // console.log("clr-linechart-scheme : ", this.linecharts[linechart].colorScheme.sunny);
-    // let colorEdit = document.getElementById("test");
-    // if(colorEdit != null) colorEdit.style.backgroundColor = color;
-    // console.log("Called");
 
   }
 
@@ -245,19 +217,7 @@ export class AppComponent {
   }
 
   public showScrollBar(linechart: number): boolean{
-    // console.log(linechart==this.linecharts.length-1);
     return linechart==this.linecharts.length-1;
-  }
-
-  public checkPeakEdit(linechart: number, value: number){
-    console.log("Start ------- ", value);
-    let i =0;
-    this.linecharts.forEach((element) => {
-      console.log("linechart : ", i);
-      console.log(element.peakSize);
-      i++;
-    });
-
   }
 
   public widthUpdate(value: number){
@@ -296,7 +256,7 @@ export class AppComponent {
         break;
 
     }
-    
+
   }
 
 }
