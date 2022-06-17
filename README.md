@@ -13,15 +13,38 @@ Run `ng generate component component-name` to generate a new component. You can 
 ## Build
 
 Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+# BasicLinechart
 
-## Running unit tests
+This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 12.0.3.
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+### Patch 0.9.5 notes
+- Bug fix on scrollbar, now scroll it's possible on all the window.
+- Correction on the display of the labels of the y-axis.
 
-## Running end-to-end tests
+## Installation
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+- Run `npm install https://github.com/OOPotato/PROJET-TER-PRIORE` to install.
 
-## Further help
+- Run `npm install d3` and `npm install @types/d3` to install pearDependencies.
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+## Summary
+
+This package contains, a linechart component and some data's examples to try it.
+
+On the linechart component you can :
+- zoom with ctrl+wheel
+- move the horizontal scrollbar, scroll the time
+- move the vertical current time line
+
+You can synchronize the time range and the current time line on several components.
+
+## How to use
+
+- In your app.module.ts, you must add ```BasicLinechartModule``` to imports of ```@NgModule```.
+
+- In your app.component.html, you can add the component :
+```html
+<number-linechart></number-linechart>
+<boolean-linechart></boolean-linechart>
+<enum-linechart></enum-linechart>
+```
