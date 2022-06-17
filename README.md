@@ -17,10 +17,6 @@ Run `ng build` to build the project. The build artifacts will be stored in the `
 
 This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 12.0.3.
 
-### Patch 0.9.5 notes
-- Bug fix on scrollbar, now scroll it's possible on all the window.
-- Correction on the display of the labels of the y-axis.
-
 ## Installation
 
 - Run `npm install https://github.com/OOPotato/PROJET-TER-PRIORE` to install.
