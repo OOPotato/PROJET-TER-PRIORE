@@ -139,12 +139,13 @@ export class NumberLinechartComponent extends BasicLinechart<number> implements 
   }
 
   override discreteValue(data: DataNumber[]): boolean{
-    for(let i:number=0;i<data.length;i++){
-      for(let j:number=0;j<data[i].values.length;j++){
-        if(data[i].values[j][1]!=Math.round(data[i].values[j][1])) return false;
-      }
-    }
-    return true;
+    // for(let i:number=0;i<data.length;i++){
+    //   for(let j:number=0;j<data[i].values.length;j++){
+    //     if(data[i].values[j][1]!=Math.round(data[i].values[j][1])) return false;
+    //   }
+    // }
+    // return true;
+    return false;
   }
 
   override scale(data: DataNumber[], s: "xMin" | "xMax" | "yMin" | "yMax"): number {

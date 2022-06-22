@@ -1,22 +1,27 @@
 /**
    * Data's format for the component
    */
- export interface DataG<T> {
-    style: string;
-    label: string;
-    values: [number, T][];
-    interpolation?: unknown; // Non requis pour tout
-    color?: unknown
-    colors?: unknown
-  }
+  
+export interface DataG<T> {
+  style: string;
+  label: string;
+  values: [number, T][];
+  interpolation?: unknown; // Non requis pour tout
+  color?: unknown
+  colors?: unknown
+}
 
 export interface DataEnum<T extends string[]> extends DataG<T[number]> {
-    style: "enumeration";
-    label: string;
-    colors: {
-      [k in T[number]]: string; // Couleur de chaque valeur
-    };
-  }
+  style: "enumeration";
+  label: string;
+  colors: {
+    [k in T[number]]: string; // Couleur de chaque valeur
+  };
+  labels?: {
+    [k in T[number]]?: string; // Couleur de chaque valeur
+  };
+
+}
 
 export interface DataBool extends DataG<boolean> {
   style: "boolean";

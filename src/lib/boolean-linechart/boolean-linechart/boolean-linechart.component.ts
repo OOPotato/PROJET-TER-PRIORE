@@ -233,7 +233,6 @@ export class BooleanLinechartComponent extends BasicLinechart<boolean> implement
             }).join(" ");
           })
           .style("fill", (d:polygonDef) => d.color)
-          .style("fill-opacity", 0.6)
           .style("stroke", "black")
           .style("strokeWidth", "10px");
 
@@ -262,7 +261,6 @@ export class BooleanLinechartComponent extends BasicLinechart<boolean> implement
             }).join(" ");
           })
           .style("fill", (d:polygonDef) => d.color)
-          .style("fill-opacity", 0.6)
           .style("stroke", "black")
           .style("strokeWidth", "10px");
 

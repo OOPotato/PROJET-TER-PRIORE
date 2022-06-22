@@ -141,6 +141,18 @@ export class DataService<T> {
   "2016-07-28 14:15:24,459";"Enum_2";"SUNNY"
   "2016-07-29 06:06:24,459";"Enum_2";"SUNNY"
   "2016-07-29 19:36:24,459";"Enum_2";"SUNNY"
+
+  "2016-07-25 15:47:24,459";"Enum_3";"PLOP"
+  "2016-07-25 22:47:24,459";"Enum_3";"CLOUDY"
+  "2016-07-25 22:55:24,459";"Enum_3";"CLOUDY"
+  "2016-07-26 07:29:24,459";"Enum_3";"PLOP"
+  "2016-07-26 20:59:24,459";"Enum_3";"PLOP"
+  "2016-07-27 06:21:24,459";"Enum_3";"RAINY"
+  "2016-07-27 13:00:24,459";"Enum_3";"RAINY"
+  "2016-07-28 06:32:24,459";"Enum_3";"PLOP"
+  "2016-07-28 14:15:24,459";"Enum_3";"PLOP"
+  "2016-07-29 06:06:24,459";"Enum_3";"SUNNY"
+  "2016-07-29 19:36:24,459";"Enum_3";"SUNNY"
   `;
 
 
@@ -205,7 +217,7 @@ export class DataService<T> {
       label: label,
       values: v,
       style: "boolean",
-      color: this.randomColor(100)
+      color: this.randomColor(100) + "70"
     };
 
   }
@@ -215,18 +227,30 @@ export class DataService<T> {
     let v: [number,any][] = [];
     d.forEach(element =>v.push([element.timestamp,element.value]));
 
-    let datatest: DataEnum<string[]> =  {
+    let datatest: DataEnum<["CLOUDY", "SUNNY", "RAINY", "PLOP"]> =  {
       label: label,
       values: v,
       style: "enumeration",
-      colors: {}
+      colors: {
+        "CLOUDY": this.randomColor(100),
+        "SUNNY": this.randomColor(100),
+        "RAINY": this.randomColor(100),
+        "PLOP": this.randomColor(100),
+      },
+      labels: {
+        "CLOUDY": "☁️",
+        "SUNNY": "☀️",
+        "RAINY": "🌧️",
+        "PLOP": "PLOP",
+      }
     };
 
-    let enums = this.getEnums(this.str, label);
 
-    enums.forEach(e => {
-      datatest.colors[e] = this.randomColor(100);
-    });
+    // let enums = this.getEnums(this.str, label);
+
+    // enums.forEach(e => {
+    //   datatest.colors[e] = this.randomColor(100);
+    // });
 
     return datatest;
   }
@@ -286,6 +310,8 @@ export class DataService<T> {
     this.datasetsEnum[0].push(this.generateEnumData(str,"Enum_1", "red", this.parseEnum));
     this.datasetsEnum.push([]);
     this.datasetsEnum[1].push(this.generateEnumData(str,"Enum_2", "#6a13ce", this.parseEnum));
+    this.datasetsEnum.push([]);
+    this.datasetsEnum[2].push(this.generateEnumData(str,"Enum_3", "#6a13ce", this.parseEnum));
 
   }
 

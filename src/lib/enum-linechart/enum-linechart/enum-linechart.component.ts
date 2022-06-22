@@ -191,7 +191,8 @@ export class EnumLinechartComponent<T extends string[]> extends BasicLinechart<T
               {x : this.scaleX(element.values[i+1][0]), y : this.svgHeight},
               {x : this.scaleX(element.values[i][0]), y : this.svgHeight},
             ],
-            color: (element.colors as {[k: string]: string})[ element.values[i][1] as string ]
+            // color: (element.colors as {[k: string]: string})[ element.values[i][1] as string ]
+            color: element.colors[element.values[i][1]] ?? "black"
           }
 
           allPolygonsPath[polyId] = polygonPath;
@@ -218,7 +219,6 @@ export class EnumLinechartComponent<T extends string[]> extends BasicLinechart<T
             }).join(" ");
           })
           .style("fill", (d:polygonDef) => d.color)
-          .style("fill-opacity", 0.6)
           .style("stroke", "black")
           .style("strokeWidth", "10px");
 
@@ -247,7 +247,6 @@ export class EnumLinechartComponent<T extends string[]> extends BasicLinechart<T
             }).join(" ");
           })
           .style("fill", (d:polygonDef) => d.color)
-          .style("fill-opacity", 0.6)
           .style("stroke", "black")
           .style("strokeWidth", "10px");
 
@@ -265,38 +264,29 @@ export class EnumLinechartComponent<T extends string[]> extends BasicLinechart<T
 
     this.dataZoomed.forEach((element) => {
 
-      if (element.style == "enumeration") {
-        let i: number = 0;
-        let avgImgLength: number = 40; // For 15px of font-size
+      console.log("START -----------------------------------------------------------------------------------------------------")
 
-        for (i; i < element.values.length - 1; i++) {
+      let i: number = 0;
+      let avgImgLength: number = 19; // For 30px of font-size letters or UTF8 Images
 
-          if (this.scaleX(element.values[i + 1][0]) - this.scaleX(element.values[i][0]) >= avgImgLength) {
+      let test = element.labels?.[element.values[i][1]]?.length ?? 0;
 
-            utf8.append("text")
-              .attr("class", "utf8_label")
-              .html(this.EnumToEnumUTF8(element.values[i][1]))
-              .style("font-size", "30px")
-              .attr("transform", "translate(" + (this.scaleX(element.values[i][0])+4) + "," + ((this.svgHeight / 2) + 10) + ")");
+      for (i; i < element.values.length - 1; i++) {
 
-          }
+        test = element.labels?.[element.values[i][1]]?.length ?? 0;
+
+        if (this.scaleX(element.values[i + 1][0]) - this.scaleX(element.values[i][0]) >= avgImgLength*test) {
+
+          utf8.append("text")
+            .attr("class", "utf8_label")
+            .html(element.labels?.[element.values[i][1]] ?? "")
+            .style("font-size", "30px")
+            .attr("transform", "translate(" + (this.scaleX(element.values[i][0])+4) + "," + ((this.svgHeight / 2) + 10) + ")");
+
         }
       }
     });
 
   }
-
-
-      /*
-       * Translate numerical value to enumeration UTF8 image
-       */
-
-      private EnumToEnumUTF8(value: string): string{
-         if(value=="SUNNY"){ return "☀️";} // SUNNY
-         else if (value=="RAINY") return "🌧️"; // RAINY
-         else if (value=="CLOUDY") return "☁️"; //CLOUDY
-         else return value;
-
-       }
 
 }

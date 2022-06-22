@@ -219,7 +219,6 @@ export class BasicLinechart<T> {
     constructor(private renderer: Renderer2) {
     }
 
-
 /*
      * Add event listeners on the svg
      */
@@ -465,22 +464,6 @@ export class BasicLinechart<T> {
         this.buildLabels();
       }
 
-
-      /*
-       * Translate numerical value to enumeration text
-       */
-
-      private  intToEnumTxt(value: number): string{
-        if(value==1) return "SUNNY";
-        else if (value==2) return "RAINY";
-        else if (value==3) return "CLOUDY";
-        else return "UNKNOWN";
-
-      }
-
-
-
-
       /*
        * Draw the vertical line which represents the current time
        */
@@ -710,8 +693,6 @@ export class BasicLinechart<T> {
        * @param {MouseEvent} event
        */
       private showInfo(event: MouseEvent): void{
-
-
       }
 
       /*
